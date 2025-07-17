@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [loadUserFromToken]);
 
   const login = async (email: string, password: string): Promise<void> => {
-    const response = await api.post('/auth/login', { email, password });
+    const response = await api.post('/auth/login', { username: email, password });
     const { token: newToken } = response;
     setToken(newToken);
     const decodedJwt = parseJwt(newToken);
