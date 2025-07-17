@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ModeToggle } from '@/components/shared/ModeToggle';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 import { useTranslation } from '@/hooks/useTranslation';
+import Image from 'next/image';
 
 export default function LandingPage() {
   const { t } = useTranslation();
@@ -50,14 +51,14 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="container grid lg:grid-cols-2 gap-12 items-center py-20 md:py-32">
+        <section className="container grid lg:grid-cols-2 gap-8 items-center py-16 md:py-24">
           <motion.div 
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="flex flex-col items-start gap-6"
+            className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6"
           >
-            <h1 className="text-4xl font-headline font-bold tracking-tighter sm:text-5xl md:text-6xl">
+            <h1 className="text-3xl font-headline font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
               {t('hero.title')}
             </h1>
             <p className="max-w-[600px] text-muted-foreground md:text-xl">
@@ -73,12 +74,16 @@ export default function LandingPage() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
+            className="w-full max-w-md mx-auto lg:max-w-full"
           >
-            <img
+            <Image
               src="https://placehold.co/600x400.png"
-              alt="Dashboard Preview"
-              data-ai-hint="dashboard analytics"
-              className="rounded-xl shadow-2xl"
+              alt="Screenshot of the EduReport Hub dashboard showing charts and data analytics."
+              data-ai-hint="dashboard analytics chart"
+              width={600}
+              height={400}
+              priority={true}
+              className="rounded-xl shadow-2xl w-full h-auto"
             />
           </motion.div>
         </section>
@@ -101,7 +106,7 @@ export default function LandingPage() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
-                  <Card>
+                  <Card className="h-full">
                     <CardHeader className="flex flex-col items-center text-center gap-4">
                       {feature.icon}
                       <CardTitle>{feature.title}</CardTitle>
