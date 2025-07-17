@@ -1,140 +1,127 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, BookOpenCheck } from 'lucide-react';
-
+import { BookOpenCheck, BarChart, Users, CheckSquare, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ModeToggle } from '@/components/shared/ModeToggle';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { useTranslation } from '@/hooks/useTranslation';
 
-const formSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address.' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
-});
+export default function LandingPage() {
+  const { t } = useTranslation();
 
-export default function LoginPage() {
-  const router = useRouter();
-  const { login } = useAuth();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: '',
-      password: '',
+  const featureCards = [
+    {
+      icon: <CheckSquare className="h-8 w-8 text-primary" />,
+      title: t('features.streamlined_reporting'),
+      description: t('features.streamlined_reporting_desc'),
     },
-  });
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
-    try {
-      await login(values.email, values.password);
-      toast({
-        title: 'Login Successful',
-        description: 'Welcome back!',
-      });
-      router.push('/dashboard');
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: error instanceof Error ? error.message : 'An unknown error occurred.',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }
+    {
+      icon: <BarChart className="h-8 w-8 text-primary" />,
+      title: t('features.data_analytics'),
+      description: t('features.data_analytics_desc'),
+    },
+    {
+      icon: <Users className="h-8 w-8 text-primary" />,
+      title: t('features.user_management'),
+      description: t('features.user_management_desc'),
+    },
+  ];
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card className="w-full max-w-md shadow-2xl">
-          <CardHeader className="text-center">
-            <div className="mx-auto bg-primary text-primary-foreground rounded-full p-3 w-fit mb-4">
-              <BookOpenCheck className="h-8 w-8" />
-            </div>
-            <CardTitle className="font-headline text-3xl">EduReport Hub</CardTitle>
-            <CardDescription>Sign in to access your dashboard</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="user@example.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input type={showPassword ? 'text' : 'password'} placeholder="••••••••" {...field} />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
-                          >
-                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                          </button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Signing In...' : 'Sign In'}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-          <CardFooter className="flex-col">
-              <p className="text-sm text-muted-foreground">
-                Don't have an account? Contact an administrator.
+    <div className="flex flex-col min-h-screen bg-background">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center">
+          <Link href="/" className="flex items-center gap-2 font-bold">
+            <BookOpenCheck className="h-6 w-6 text-primary" />
+            <span className="font-headline text-xl">EduReport Hub</span>
+          </Link>
+          <nav className="flex items-center gap-4 ml-auto">
+            <LanguageSwitcher />
+            <ModeToggle />
+            <Button asChild>
+              <Link href="/login">{t('login')}</Link>
+            </Button>
+          </nav>
+        </div>
+      </header>
+
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="container grid lg:grid-cols-2 gap-12 items-center py-20 md:py-32">
+          <motion.div 
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col items-start gap-6"
+          >
+            <h1 className="text-4xl font-headline font-bold tracking-tighter sm:text-5xl md:text-6xl">
+              {t('hero.title')}
+            </h1>
+            <p className="max-w-[600px] text-muted-foreground md:text-xl">
+              {t('hero.subtitle')}
+            </p>
+            <Button size="lg" asChild>
+              <Link href="/login">
+                {t('hero.cta')} <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <img
+              src="https://placehold.co/600x400.png"
+              alt="Dashboard Preview"
+              data-ai-hint="dashboard analytics"
+              className="rounded-xl shadow-2xl"
+            />
+          </motion.div>
+        </section>
+
+        {/* Features Section */}
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <h2 className="text-3xl font-headline font-bold tracking-tighter sm:text-5xl">{t('features.title')}</h2>
+              <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                {t('features.subtitle')}
               </p>
-          </CardFooter>
-        </Card>
-      </motion.div>
-    </main>
+            </div>
+            <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 md:gap-12 lg:grid-cols-3 mt-12">
+              {featureCards.map((feature, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Card>
+                    <CardHeader className="flex flex-col items-center text-center gap-4">
+                      {feature.icon}
+                      <CardTitle>{feature.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-center">
+                      <p className="text-muted-foreground">{feature.description}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+      
+      <footer className="bg-secondary border-t">
+        <div className="container py-6 text-center text-muted-foreground text-sm">
+          © {new Date().getFullYear()} EduReport Hub. {t('footer.rights_reserved')}
+        </div>
+      </footer>
+    </div>
   );
 }
