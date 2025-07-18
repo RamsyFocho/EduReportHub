@@ -51,7 +51,7 @@ export default function RegisterUserPage() {
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     setIsSubmitting(true);
     try {
-      const response = await api.post('/auth/register', values);
+      const response = await api.post('/api/auth/register', values);
       toast({ title: 'Success', description: response.message });
       form.reset();
     } catch (error) {

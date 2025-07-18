@@ -37,7 +37,7 @@ export default function ReportsPage() {
     const fetchReports = async () => {
       try {
         setLoading(true);
-        const data = await api.get("/reports");
+        const data = await api.get("/api/reports");
         setReports(data);
       } catch (error) {
         toast({

@@ -36,7 +36,7 @@ export default function EstablishmentsPage() {
   const fetchEstablishments = async () => {
     try {
       setLoading(true);
-      const data = await api.get('/establishments');
+      const data = await api.get('/api/establishments');
       setEstablishments(data);
     } catch (error) {
       toast({ variant: 'destructive', title: 'Failed to fetch establishments' });
@@ -52,7 +52,7 @@ export default function EstablishmentsPage() {
   async function onSubmit(values: z.infer<typeof establishmentSchema>) {
     setIsSubmitting(true);
     try {
-      await api.post('/establishments', values);
+      await api.post('/api/establishments', values);
       toast({ title: 'Success', description: 'Establishment created successfully.' });
       form.reset();
       fetchEstablishments();

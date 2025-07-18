@@ -53,7 +53,7 @@ export default function UploadTeachersPage() {
     formData.append('file', values.file[0]);
 
     try {
-      await api.postFormData('/teachers/upload', formData);
+      await api.postFormData('/api/teachers/upload', formData);
       toast({ title: 'Success', description: 'Teachers uploaded successfully.' });
       form.reset();
       setFileName('');

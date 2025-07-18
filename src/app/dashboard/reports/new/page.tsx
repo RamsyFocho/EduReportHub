@@ -46,8 +46,8 @@ export default function NewReportPage() {
     const fetchData = async () => {
       try {
         const [estData, teacherData] = await Promise.all([
-          api.get('/establishments'),
-          api.get('/teachers'), 
+          api.get('/api/establishments'),
+          api.get('/api/teachers'), 
         ]);
         setEstablishments(estData);
         // Assuming /teachers is available. If not, this part needs adjustment.
@@ -90,7 +90,7 @@ export default function NewReportPage() {
     };
 
     try {
-      await api.post('/reports', payload);
+      await api.post('/api/reports', payload);
       toast({ title: 'Success', description: 'Report created successfully.' });
       router.push('/dashboard/reports');
     } catch (error) {

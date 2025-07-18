@@ -29,7 +29,7 @@ function VerificationContent() {
         // The API redirects, but we can check the response status for success before it does.
         // A more robust way would be for the API to return JSON on success/failure.
         // Assuming the API call itself is what matters.
-        await api.get(`/auth/verify?token=${token}`);
+        await api.get(`/api/auth/verify?token=${token}`);
         setStatus('success');
         setMessage('Your email has been successfully verified! You can now log in.');
       } catch (error) {
