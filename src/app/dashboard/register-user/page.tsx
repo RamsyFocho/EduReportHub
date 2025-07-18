@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -16,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const roles = ['ROLE_INSPECTOR', 'ROLE_ADMIN'];
+const roles = ['ROLE_INSPECTOR', 'ROLE_ADMIN', 'ROLE_DIRECTOR'];
 
 const registerSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters.'),
@@ -52,10 +53,16 @@ export default function RegisterUserPage() {
     setIsSubmitting(true);
     try {
       const response = await api.post('/api/auth/register', values);
-      toast({ title: 'Success', description: response.message });
+      toast({ title: 'Success', description: 'User registered successfully. A verification email has been sent.' });
       form.reset();
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Registration Failed', description: error instanceof Error ? error.message : "An unknown error occurred." });
+    } catch (error: any) {
+      let description = "An unknown error occurred.";
+       if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
+          description = error.response.errors.join(', ');
+      } else if (error.message) {
+          description = error.message;
+      }
+      toast({ variant: 'destructive', title: 'Registration Failed', description });
     } finally {
       setIsSubmitting(false);
     }
@@ -72,7 +79,7 @@ export default function RegisterUserPage() {
         <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle className="font-headline text-2xl">Register New User</CardTitle>
-            <CardDescription>Create a new account for an inspector or admin.</CardDescription>
+            <CardDescription>Create a new account for an inspector, director, or admin.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>

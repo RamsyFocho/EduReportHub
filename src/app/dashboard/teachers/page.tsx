@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Pencil } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -26,12 +27,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
 const teacherSchema = z.object({
   firstName: z.string().min(2, { message: 'First name must be at least 2 characters.' }),
   lastName: z.string().min(2, { message: 'Last name must be at least 2 characters.' }),
+  teacherId: z.string().optional(),
+  email: z.string().email({ message: 'Invalid email address.' }).optional().or(z.literal('')),
+  phone: z.string().optional(),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
 });
 
 export default function TeachersPage() {
@@ -53,7 +57,7 @@ export default function TeachersPage() {
       const data = await api.get('/api/teachers');
       setTeachers(data);
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Failed to fetch teachers' });
+      toast({ variant: 'destructive', title: 'Failed to fetch teachers', description: "Could not load the list of teachers." });
     } finally {
       setLoading(false);
     }
@@ -72,7 +76,13 @@ export default function TeachersPage() {
       setEditingTeacher(null);
       fetchTeachers();
     } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Update Failed', description: error.message || "Could not update teacher." });
+      let description = "Could not update teacher.";
+      if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
+          description = error.response.errors.join(', ');
+      } else if (error.message) {
+          description = error.message;
+      }
+      toast({ variant: 'destructive', title: 'Update Failed', description });
     } finally {
       setIsSubmitting(false);
     }
@@ -83,9 +93,21 @@ export default function TeachersPage() {
       form.reset({
         firstName: editingTeacher.firstName,
         lastName: editingTeacher.lastName,
+        teacherId: editingTeacher.teacherId || '',
+        email: editingTeacher.email || '',
+        phone: editingTeacher.phone || '',
+        gender: editingTeacher.gender,
       });
     }
   }, [editingTeacher, form]);
+
+  const handleOpenDialog = (teacher: Teacher) => {
+    setEditingTeacher(teacher);
+  };
+  
+  const handleCloseDialog = () => {
+    setEditingTeacher(null);
+  }
 
   return (
     <AnimatedPage>
@@ -98,8 +120,12 @@ export default function TeachersPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Teacher ID</TableHead>
                 <TableHead>First Name</TableHead>
                 <TableHead>Last Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead>Gender</TableHead>
                 {canManage && <TableHead className="text-right">Actions</TableHead>}
               </TableRow>
             </TableHeader>
@@ -107,25 +133,29 @@ export default function TeachersPage() {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell><Skeleton className="h-4 w-[150px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[150px]" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-[180px]" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
                     {canManage && <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>}
                   </TableRow>
                 ))
               ) : (
                 teachers.map((teacher) => (
                   <TableRow key={teacher.id}>
+                    <TableCell>{teacher.teacherId || 'N/A'}</TableCell>
                     <TableCell>{teacher.firstName}</TableCell>
                     <TableCell>{teacher.lastName}</TableCell>
+                    <TableCell>{teacher.email || 'N/A'}</TableCell>
+                    <TableCell>{teacher.phone || 'N/A'}</TableCell>
+                    <TableCell>{teacher.gender || 'N/A'}</TableCell>
                     {canManage && (
                       <TableCell className="text-right">
-                        <AlertDialog onOpenChange={(open) => !open && setEditingTeacher(null)}>
-                            <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon" onClick={() => setEditingTeacher(teacher)}>
-                                    <Pencil className="h-4 w-4" />
-                                </Button>
-                            </AlertDialogTrigger>
-                        </AlertDialog>
+                          <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(teacher)}>
+                              <Pencil className="h-4 w-4" />
+                          </Button>
                       </TableCell>
                     )}
                   </TableRow>
@@ -137,7 +167,7 @@ export default function TeachersPage() {
       </Card>
       
       {editingTeacher && (
-        <AlertDialog open={!!editingTeacher} onOpenChange={(open) => !open && setEditingTeacher(null)}>
+        <AlertDialog open={!!editingTeacher} onOpenChange={(open) => !open && handleCloseDialog()}>
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Edit Teacher</AlertDialogTitle>
@@ -145,36 +175,31 @@ export default function TeachersPage() {
                 </AlertDialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleEditSubmit)} className="space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="firstName"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>First Name</FormLabel>
-                                <FormControl>
-                                    <Input {...field} />
-                                </FormControl>
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField control={form.control} name="teacherId" render={({ field }) => ( <FormItem><FormLabel>Teacher ID</FormLabel><FormControl><Input placeholder="T-12345" {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                        <FormField control={form.control} name="firstName" render={({ field }) => ( <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="John" {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                        <FormField control={form.control} name="lastName" render={({ field }) => ( <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Doe" {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                        <FormField control={form.control} name="email" render={({ field }) => ( <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="john.doe@example.com" {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                        <FormField control={form.control} name="phone" render={({ field }) => ( <FormItem><FormLabel>Phone</FormLabel><FormControl><Input placeholder="+123456789" {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                        <FormField control={form.control} name="gender" render={({ field }) => ( 
+                            <FormItem>
+                                <FormLabel>Gender</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="MALE">Male</SelectItem>
+                                        <SelectItem value="FEMALE">Female</SelectItem>
+                                        <SelectItem value="OTHER">Other</SelectItem>
+                                    </SelectContent>
+                                </Select>
                                 <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="lastName"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Last Name</FormLabel>
-                                <FormControl>
-                                    <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save Changes'}</AlertDialogAction>
-                        </AlertDialogFooter>
+                            </FormItem> 
+                        )}/>
+                       </div>
+                       <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save Changes'}</AlertDialogAction>
+                      </AlertDialogFooter>
                     </form>
                 </Form>
             </AlertDialogContent>

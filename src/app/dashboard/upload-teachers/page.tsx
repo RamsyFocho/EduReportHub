@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -20,6 +21,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = [
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'application/vnd.ms-excel',
+  'text/csv'
 ];
 
 const uploadSchema = z.object({
@@ -29,7 +31,7 @@ const uploadSchema = z.object({
     .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
     .refine(
       (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
-      '.xlsx, .xls files are accepted.'
+      '.xlsx, .xls, or .csv files are accepted.'
     ),
 });
 
@@ -54,11 +56,17 @@ export default function UploadTeachersPage() {
 
     try {
       await api.postFormData('/api/teachers/upload', formData);
-      toast({ title: 'Success', description: 'Teachers uploaded successfully.' });
+      toast({ title: 'Success', description: 'Teachers uploaded successfully. The data is being processed.' });
       form.reset();
       setFileName('');
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Upload Failed', description: error instanceof Error ? error.message : "An unknown error occurred." });
+    } catch (error: any) {
+      let description = "An unknown error occurred during upload.";
+      if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
+          description = error.response.errors.join(', ');
+      } else if (error.message) {
+          description = error.message;
+      }
+      toast({ variant: 'destructive', title: 'Upload Failed', description });
     } finally {
       setIsSubmitting(false);
     }
@@ -75,7 +83,7 @@ export default function UploadTeachersPage() {
         <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle className="font-headline text-2xl">Upload Teachers</CardTitle>
-            <CardDescription>Bulk upload teacher data from an Excel file (.xlsx, .xls).</CardDescription>
+            <CardDescription>Bulk upload teacher data from an Excel or CSV file.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -94,7 +102,7 @@ export default function UploadTeachersPage() {
                               <p className="mb-2 text-sm text-muted-foreground">
                                 <span className="font-semibold text-primary">Click to upload</span> or drag and drop
                               </p>
-                              <p className="text-xs text-muted-foreground">Excel (.xlsx, .xls) up to 5MB</p>
+                              <p className="text-xs text-muted-foreground">Excel or CSV (up to 5MB)</p>
                               {fileName && <p className="mt-4 text-sm font-medium text-foreground">{fileName}</p>}
                             </div>
                             <Input 

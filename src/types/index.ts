@@ -22,8 +22,12 @@ export interface Establishment {
 
 export interface Teacher {
     id: number;
+    teacherId?: string;
     firstName: string;
     lastName: string;
+    email?: string;
+    phone?: string;
+    gender?: 'MALE' | 'FEMALE' | 'OTHER';
 }
 
 export interface Report {
