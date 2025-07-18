@@ -57,11 +57,13 @@ export default function ReportsPage() {
     try {
       setLoading(true);
       const data = await api.get("/api/reports");
-      // Correctly handle the paginated response
+      console.log("Data from backend:", data); // Logging the response
+      
       if (data && Array.isArray(data.content)) {
         setReports(data.content);
       } else {
         setReports([]);
+        console.warn("API response did not contain a 'content' array.", data);
       }
     } catch (error) {
       toast({
