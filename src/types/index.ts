@@ -1,4 +1,5 @@
 
+
 export interface User {
   id: string;
   username: string;
@@ -31,24 +32,32 @@ export interface Teacher {
 }
 
 export interface Report {
-    id: number;
-    establishment: { id: number, name: string };
-    teacher: { id: number, firstName: string; lastName: string };
+    // Handling both potential structures
+    id?: number;
+    reportId: number;
+    establishment?: { id: number, name: string };
+    teacher?: { id: number, firstName: string; lastName: string };
     className: string;
     courseTitle: string;
     date: string;
     startTime: string;
     endTime: string;
-    presentStudents: number;
-    absentStudents: number;
-    totalStudents: number;
+    presentStudents?: number;
+    absentStudents?: number;
+    totalStudents?: number;
+    studentNum?: number; // from new structure
+    studentPresent?: number; // from new structure
     observation: string;
-    sanctionType: "NONE" | "WARNING" | "SUSPENSION" | "COMMENDATION";
-    createdAt: string;
-    updatedAt: string;
-    createdBy: {
+    sanctionType: "NONE" | "WARNING" | "SUSPENSION" | "COMMENDATION" | null;
+    description: string | null;
+    dateIssued: string | null;
+    createdAt?: string;
+    updatedAt?: string;
+    createdBy?: {
         id: number;
         username: string;
         email: string;
     }
 }
+
+    
