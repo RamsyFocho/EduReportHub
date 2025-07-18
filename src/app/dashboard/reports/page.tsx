@@ -48,13 +48,15 @@ export default function ReportsPage() {
     try {
       setLoading(true);
       const data = await api.get("/api/reports");
-      setReports(data.content || []); // Handle paginated response
+      // Safely access the content array from the paginated response
+      setReports(data && Array.isArray(data.content) ? data.content : []);
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Failed to fetch reports",
         description: error instanceof Error ? error.message : "Could not load reports.",
       });
+      setReports([]); // Ensure reports is an empty array on error
     } finally {
       setLoading(false);
     }
