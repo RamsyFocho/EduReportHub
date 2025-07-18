@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -56,8 +57,14 @@ export default function EstablishmentsPage() {
       toast({ title: 'Success', description: 'Establishment created successfully.' });
       form.reset();
       fetchEstablishments();
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Error', description: error instanceof Error ? error.message : "Failed to create establishment." });
+    } catch (error: any) {
+        let description = "Failed to create establishment.";
+        if (error.errors && Array.isArray(error.errors)) {
+            description = error.errors.join(', ');
+        } else if (error.message) {
+            description = error.message;
+        }
+        toast({ variant: 'destructive', title: 'Error', description });
     } finally {
       setIsSubmitting(false);
     }
