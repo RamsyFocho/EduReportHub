@@ -2,12 +2,24 @@ import { getToken } from './auth';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
+class ApiError extends Error {
+  response: any;
+
+  constructor(message: string, response: any) {
+    super(message);
+    this.name = 'ApiError';
+    this.response = response;
+  }
+}
+
 async function request(endpoint: string, options: RequestInit = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
   const token = getToken();
 
   const headers = new Headers(options.headers || {});
-  headers.append('Content-Type', 'application/json');
+  if (!(options.body instanceof FormData)) {
+    headers.append('Content-Type', 'application/json');
+  }
   if (token) {
     headers.append('Authorization', `Bearer ${token}`);
   }
@@ -22,8 +34,7 @@ async function request(endpoint: string, options: RequestInit = {}) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred' }));
-      const errorMessage = errorData.message || `HTTP error! status: ${response.status}`;
-      throw new Error(errorMessage);
+      throw new ApiError(errorData.message || `HTTP error! status: ${response.status}`, errorData);
     }
   
     if (response.status === 204) {
@@ -33,6 +44,9 @@ async function request(endpoint: string, options: RequestInit = {}) {
     return response.json();
   } catch(error) {
     console.error("Fetch error:", error);
+    if (error instanceof ApiError) {
+        throw error; // Re-throw the custom error with full details
+    }
     if (error instanceof Error) {
         throw new Error(`Failed to fetch: ${error.message}`);
     }
@@ -47,27 +61,8 @@ export const api = {
   put: (endpoint: string, body: any, options?: RequestInit) => request(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) }),
   delete: (endpoint: string, options?: RequestInit) => request(endpoint, { ...options, method: 'DELETE' }),
   postFormData: async (endpoint: string, formData: FormData) => {
-    const url = `${API_BASE_URL}${endpoint}`;
-    const token = getToken();
-
-    const headers = new Headers();
-    if (token) {
-      headers.append('Authorization', `Bearer ${token}`);
-    }
-
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers,
-        body: formData,
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred' }));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-      }
-  
-      return response.json();
+      return await request(endpoint, { method: 'POST', body: formData });
     } catch(error) {
         console.error("Fetch error (form-data):", error);
         if (error instanceof Error) {

@@ -59,8 +59,8 @@ export default function EstablishmentsPage() {
       fetchEstablishments();
     } catch (error: any) {
         let description = "Failed to create establishment.";
-        if (error.errors && Array.isArray(error.errors)) {
-            description = error.errors.join(', ');
+        if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
+            description = error.response.errors.join(', ');
         } else if (error.message) {
             description = error.message;
         }
