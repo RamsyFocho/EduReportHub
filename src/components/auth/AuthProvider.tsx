@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AuthContext } from '@/context/AuthContext';
 import { User, AuthContextType } from '@/types';
-import { setToken, clearToken, getToken } from '@/lib/auth';
+import { setToken, clearToken, getToken, setRefreshToken, clearRefreshToken } from '@/lib/auth';
 import { api } from '@/lib/api';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -31,6 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAuthState(storedToken);
       } else {
         clearToken();
+        clearRefreshToken();
       }
     }
     setLoading(false);
@@ -42,8 +43,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string): Promise<void> => {
     const response = await api.post('/api/auth/login', { email, password });
-    const { token: newToken } = response;
+    const { token: newToken, refreshToken } = response;
+    
     setToken(newToken);
+    if (refreshToken) {
+      setRefreshToken(refreshToken);
+    }
+    
     const decodedJwt = parseJwt(newToken);
     setUser({
       email: decodedJwt.sub,
@@ -56,6 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setAuthState(null);
     clearToken();
+    clearRefreshToken();
   };
 
   const authContextValue: AuthContextType = {
