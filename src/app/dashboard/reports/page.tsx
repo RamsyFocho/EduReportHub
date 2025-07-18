@@ -57,7 +57,12 @@ export default function ReportsPage() {
     try {
       setLoading(true);
       const data = await api.get("/api/reports");
-      setReports(data && Array.isArray(data.content) ? data.content : []);
+      // Correctly handle the paginated response
+      if (data && Array.isArray(data.content)) {
+        setReports(data.content);
+      } else {
+        setReports([]);
+      }
     } catch (error) {
       toast({
         variant: "destructive",
@@ -231,11 +236,11 @@ export default function ReportsPage() {
               <div className="grid gap-6 py-4 max-h-[70vh] overflow-y-auto pr-4">
                 {/* General Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                    <div><span className="font-semibold text-muted-foreground">Inspector:</span> {selectedReport.createdBy.username}</div>
+                    <div><span className="font-semibold text-muted-foreground">Inspector:</span> {selectedReport.createdBy?.username || 'N/A'}</div>
                     <div><span className="font-semibold text-muted-foreground">Course:</span> {selectedReport.courseTitle}</div>
                     <div><span className="font-semibold text-muted-foreground">Class:</span> {selectedReport.className}</div>
-                    <div><span className="font-semibold text-muted-foreground">Establishment:</span> {selectedReport.establishment.name}</div>
-                    <div><span className="font-semibold text-muted-foreground">Teacher:</span> {`${selectedReport.teacher.firstName} ${selectedReport.teacher.lastName}`}</div>
+                    <div><span className="font-semibold text-muted-foreground">Establishment:</span> {selectedReport.establishment?.name || 'N/A'}</div>
+                    <div><span className="font-semibold text-muted-foreground">Teacher:</span> {selectedReport.teacher ? `${selectedReport.teacher.firstName} ${selectedReport.teacher.lastName}`: 'N/A'}</div>
                     <div><span className="font-semibold text-muted-foreground">Date:</span> {new Date(selectedReport.date).toLocaleDateString()}</div>
                     <div><span className="font-semibold text-muted-foreground">Time:</span> {selectedReport.startTime} - {selectedReport.endTime}</div>
                     <div>
