@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -77,10 +78,10 @@ export default function ReportsPage() {
   };
 
   const filteredReports = reports.filter(report => 
-    report.teacher.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    report.teacher.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    report.establishment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    report.courseTitle.toLowerCase().includes(searchTerm.toLowerCase())
+    (report.teacher?.firstName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (report.teacher?.lastName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (report.establishment?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (report.courseTitle?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
   
   const getSanctionVariant = (sanction: string): "default" | "destructive" | "secondary" => {
@@ -147,8 +148,8 @@ export default function ReportsPage() {
               ) : filteredReports.length > 0 ? (
                 filteredReports.map((report) => (
                   <TableRow key={report.id}>
-                    <TableCell>{report.teacher.firstName} {report.teacher.lastName}</TableCell>
-                    <TableCell>{report.establishment.name}</TableCell>
+                    <TableCell>{report.teacher ? `${report.teacher.firstName} ${report.teacher.lastName}`: 'N/A'}</TableCell>
+                    <TableCell>{report.establishment?.name || 'N/A'}</TableCell>
                     <TableCell>{report.courseTitle}</TableCell>
                     <TableCell>{new Date(report.date).toLocaleDateString()}</TableCell>
                     <TableCell>
