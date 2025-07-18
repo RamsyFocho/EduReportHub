@@ -31,6 +31,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from '@/hooks/useTranslation';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -39,10 +40,10 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, loading } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -54,16 +55,16 @@ export default function LoginPage() {
   });
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!loading && isAuthenticated) {
       router.push('/dashboard');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, loading, router]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
+    setIsSubmitting(true);
     try {
       await login(values.email, values.password);
-      // The useEffect hook will handle the redirect
+      // The useEffect hook will handle the redirect upon state change.
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -71,8 +72,23 @@ export default function LoginPage() {
         description: error instanceof Error ? error.message : t('login_page.login_failed_desc'),
       });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
+  }
+
+  // Show a loading state or redirect immediately if the user is already authenticated.
+  if (loading || (!loading && isAuthenticated)) {
+    return (
+        <div className="flex h-screen w-full items-center justify-center bg-background">
+            <div className="flex flex-col items-center gap-4">
+                <Skeleton className="h-12 w-12 rounded-full" />
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
+                </div>
+            </div>
+        </div>
+    );
   }
 
   return (
@@ -129,8 +145,8 @@ export default function LoginPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? t('signing_in') : t('sign_in')}
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? t('signing_in') : t('sign_in')}
                 </Button>
               </form>
             </Form>

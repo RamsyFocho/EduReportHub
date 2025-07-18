@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -9,6 +10,7 @@ import { ModeToggle } from '@/components/shared/ModeToggle';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 import { useTranslation } from '@/hooks/useTranslation';
 import Image from 'next/image';
+import { AuthAwareLoginButton } from '@/components/shared/AuthAwareLoginButton';
 
 export default function LandingPage() {
   const { t } = useTranslation();
@@ -42,9 +44,7 @@ export default function LandingPage() {
           <nav className="flex items-center gap-4 ml-auto">
             <LanguageSwitcher />
             <ModeToggle />
-            <Button asChild>
-              <Link href="/login">{t('login')}</Link>
-            </Button>
+            <AuthAwareLoginButton />
           </nav>
         </div>
       </header>
