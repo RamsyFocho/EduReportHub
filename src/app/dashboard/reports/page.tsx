@@ -38,6 +38,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function ReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
   const { user } = useAuth();
@@ -64,6 +65,7 @@ export default function ReportsPage() {
   }, []);
 
   const handleSanctionUpdate = async (reportId: number, sanctionType: "NONE" | "WARNING" | "SUSPENSION") => {
+    setIsUpdating(true);
     try {
       await api.put(`/api/reports/sanction/${reportId}`, { id: reportId, sanctionType });
       toast({ title: "Success", description: "Report sanction updated." });
@@ -74,6 +76,8 @@ export default function ReportsPage() {
         title: "Update Failed",
         description: error instanceof Error ? error.message : "Could not update sanction.",
       });
+    } finally {
+        setIsUpdating(false);
     }
   };
 
@@ -159,20 +163,20 @@ export default function ReportsPage() {
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
+                            <Button variant="ghost" className="h-8 w-8 p-0" disabled={isUpdating}>
                               <span className="sr-only">Open menu</span>
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleSanctionUpdate(report.id, 'NONE')}>
-                              Set to None
+                            <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id, 'NONE')}>
+                              {isUpdating ? 'Updating...' : 'Set to None'}
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleSanctionUpdate(report.id, 'WARNING')}>
-                              Set to Warning
+                            <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id, 'WARNING')}>
+                              {isUpdating ? 'Updating...' : 'Set to Warning'}
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleSanctionUpdate(report.id, 'SUSPENSION')}>
-                              Set to Suspension
+                            <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id, 'SUSPENSION')}>
+                              {isUpdating ? 'Updating...' : 'Set to Suspension'}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

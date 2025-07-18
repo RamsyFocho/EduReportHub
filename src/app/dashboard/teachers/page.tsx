@@ -70,7 +70,6 @@ export default function TeachersPage() {
     if (!editingTeacher) return;
     setIsSubmitting(true);
     try {
-      // The request body contains only the fields defined in the schema
       await api.put(`/api/teachers/${editingTeacher.id}`, values);
       toast({ title: 'Success', description: 'Teacher updated successfully.' });
       setEditingTeacher(null);
