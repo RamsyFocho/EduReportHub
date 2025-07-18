@@ -1,9 +1,10 @@
+
 "use client";
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -38,12 +39,14 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-        <DashboardSidebar />
-        <div className="flex flex-col w-full">
-            <DashboardHeader />
-            <main className="flex-1 p-4 sm:p-6 overflow-auto">
-                {children}
-            </main>
+        <div className="flex">
+            <DashboardSidebar />
+            <SidebarInset>
+                <DashboardHeader />
+                <main className="flex-1 p-4 sm:p-6 overflow-auto">
+                    {children}
+                </main>
+            </SidebarInset>
         </div>
     </SidebarProvider>
   );
