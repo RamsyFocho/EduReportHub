@@ -1,6 +1,6 @@
 import { getToken } from './auth';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = '/api';
 
 async function request(endpoint: string, options: RequestInit = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -17,20 +17,28 @@ async function request(endpoint: string, options: RequestInit = {}) {
     headers,
   };
 
-  const response = await fetch(url, config);
+  try {
+    const response = await fetch(url, config);
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred' }));
-    const errorMessage = errorData.message || `HTTP error! status: ${response.status}`;
-    throw new Error(errorMessage);
-  }
-
-  // Handle 204 No Content
-  if (response.status === 204) {
-    return;
-  }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred' }));
+      const errorMessage = errorData.message || `HTTP error! status: ${response.status}`;
+      throw new Error(errorMessage);
+    }
   
-  return response.json();
+    if (response.status === 204) {
+      return;
+    }
+    
+    return response.json();
+  } catch(error) {
+    console.error("Fetch error:", error);
+    if (error instanceof Error) {
+        throw new Error(`Failed to fetch: ${error.message}`);
+    }
+    throw new Error('Failed to fetch due to an unknown network error.');
+  }
+
 }
 
 export const api = {
@@ -47,17 +55,25 @@ export const api = {
       headers.append('Authorization', `Bearer ${token}`);
     }
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred' }));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred' }));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+  
+      return response.json();
+    } catch(error) {
+        console.error("Fetch error (form-data):", error);
+        if (error instanceof Error) {
+            throw new Error(`Failed to fetch: ${error.message}`);
+        }
+        throw new Error('Failed to fetch due to an unknown network error.');
     }
-
-    return response.json();
   }
 };
