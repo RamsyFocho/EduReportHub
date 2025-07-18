@@ -32,7 +32,6 @@ import {
 const teacherSchema = z.object({
   firstName: z.string().min(2, { message: 'First name must be at least 2 characters.' }),
   lastName: z.string().min(2, { message: 'Last name must be at least 2 characters.' }),
-  teacherId: z.string().optional(),
   email: z.string().email({ message: 'Invalid email address.' }).optional().or(z.literal('')),
   phone: z.string().optional(),
   gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
@@ -71,6 +70,7 @@ export default function TeachersPage() {
     if (!editingTeacher) return;
     setIsSubmitting(true);
     try {
+      // The request body contains only the fields defined in the schema
       await api.put(`/api/teachers/${editingTeacher.id}`, values);
       toast({ title: 'Success', description: 'Teacher updated successfully.' });
       setEditingTeacher(null);
@@ -93,7 +93,6 @@ export default function TeachersPage() {
       form.reset({
         firstName: editingTeacher.firstName,
         lastName: editingTeacher.lastName,
-        teacherId: editingTeacher.teacherId || '',
         email: editingTeacher.email || '',
         phone: editingTeacher.phone || '',
         gender: editingTeacher.gender,
@@ -171,12 +170,11 @@ export default function TeachersPage() {
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Edit Teacher</AlertDialogTitle>
-                    <AlertDialogDescription>Update the teacher's details.</AlertDialogDescription>
+                    <AlertDialogDescription>Update the teacher's details for ID: {editingTeacher.teacherId || editingTeacher.id}</AlertDialogDescription>
                 </AlertDialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleEditSubmit)} className="space-y-4">
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField control={form.control} name="teacherId" render={({ field }) => ( <FormItem><FormLabel>Teacher ID</FormLabel><FormControl><Input placeholder="T-12345" {...field} /></FormControl><FormMessage /></FormItem> )}/>
                         <FormField control={form.control} name="firstName" render={({ field }) => ( <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="John" {...field} /></FormControl><FormMessage /></FormItem> )}/>
                         <FormField control={form.control} name="lastName" render={({ field }) => ( <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Doe" {...field} /></FormControl><FormMessage /></FormItem> )}/>
                         <FormField control={form.control} name="email" render={({ field }) => ( <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="john.doe@example.com" {...field} /></FormControl><FormMessage /></FormItem> )}/>
