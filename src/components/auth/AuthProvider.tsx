@@ -3,41 +3,38 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AuthContext } from '@/context/AuthContext';
 import { User, AuthContextType } from '@/types';
-import { setToken, clearToken, getToken, setRefreshToken, clearRefreshToken, getRefreshToken } from '@/lib/auth';
+import { setToken, clearToken, getToken, setRefreshToken, clearRefreshToken } from '@/lib/auth';
 import { api } from '@/lib/api';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setAuthState] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const parseJwt = (token: string) => {
+  
+  const fetchUser = useCallback(async () => {
     try {
-      return JSON.parse(atob(token.split('.')[1]));
-    } catch (e) {
-      return null;
+      const userData = await api.get('/api/auth/me');
+      setUser(userData);
+      return true;
+    } catch (error) {
+      console.error('Failed to fetch user', error);
+      setUser(null);
+      setAuthState(null);
+      clearToken();
+      clearRefreshToken();
+      return false;
     }
-  };
+  }, []);
 
-  const loadUserFromToken = useCallback(() => {
+  const loadUserFromToken = useCallback(async () => {
     setLoading(true);
     const storedToken = getToken();
     if (storedToken) {
-      const decodedJwt = parseJwt(storedToken);
-      if (decodedJwt && decodedJwt.exp * 1000 > Date.now()) {
-        setUser({
-          email: decodedJwt.sub,
-          roles: decodedJwt.roles,
-        });
-        setAuthState(storedToken);
-      } else {
-        // Token expired or invalid
-        clearToken();
-        clearRefreshToken();
-      }
+      setAuthState(storedToken);
+      await fetchUser();
     }
     setLoading(false);
-  }, []);
+  }, [fetchUser]);
 
 
   useEffect(() => {
@@ -46,18 +43,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string): Promise<void> => {
     const response = await api.post('/api/auth/login', { email, password });
-    const { token: newToken, refreshToken, roles } = response;
+    const { token: newToken, refreshToken } = response;
     
     setToken(newToken);
     if (refreshToken) {
       setRefreshToken(refreshToken);
     }
-    
-    setUser({
-      email: email, // Use the email from the form
-      roles: roles,   // Use the roles from the API response
-    });
     setAuthState(newToken);
+    await fetchUser();
   };
 
   const logout = () => {
@@ -70,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const authContextValue: AuthContextType = {
     user,
     token,
-    isAuthenticated: !!token,
+    isAuthenticated: !!token && !!user,
     login,
     logout,
     loading
