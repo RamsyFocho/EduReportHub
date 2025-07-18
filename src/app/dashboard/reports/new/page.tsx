@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -23,8 +24,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Establishment, Teacher } from '@/types';
 
 const reportSchema = z.object({
-  establishmentId: z.string().nonempty({ message: 'Establishment is required.' }),
-  teacherId: z.string().nonempty({ message: 'Teacher is required.' }),
+  establishmentName: z.string().nonempty({ message: 'Establishment is required.' }),
+  teacherLastName: z.string().nonempty({ message: 'Teacher is required.' }),
   className: z.string().nonempty({ message: 'Class name is required.' }),
   courseTitle: z.string().nonempty({ message: 'Course title is required.' }),
   date: z.date({ required_error: 'A date is required.' }),
@@ -50,14 +51,9 @@ export default function NewReportPage() {
           api.get('/api/teachers'), 
         ]);
         setEstablishments(estData);
-        // Assuming /teachers is available. If not, this part needs adjustment.
-        // For now, let's mock it if it fails.
-        setTeachers(teacherData || [{id: 1, firstName: 'John', lastName: 'Doe'}, {id: 2, firstName: 'Jane', lastName: 'Smith'}]);
+        setTeachers(teacherData || []);
       } catch (error) {
          toast({ variant: "destructive", title: "Failed to load data", description: "Could not load establishments or teachers." });
-         // Mock data on failure to allow form usage
-         setEstablishments([{ id: 1, name: "Example High School" }]);
-         setTeachers([{id: 1, firstName: 'John', lastName: 'Doe'}]);
       }
     };
     fetchData();
@@ -76,8 +72,8 @@ export default function NewReportPage() {
   async function onSubmit(values: z.infer<typeof reportSchema>) {
     setIsLoading(true);
     const payload = {
-      establishment: { id: Number(values.establishmentId) },
-      teacher: { id: Number(values.teacherId) },
+      establishment: { name: values.establishmentName },
+      teacher: { lastName: values.teacherLastName },
       className: values.className,
       courseTitle: values.courseTitle,
       date: format(values.date, 'yyyy-MM-dd'),
@@ -113,7 +109,7 @@ export default function NewReportPage() {
               <div className="grid md:grid-cols-2 gap-8">
                 <FormField
                   control={form.control}
-                  name="establishmentId"
+                  name="establishmentName"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Establishment</FormLabel>
@@ -122,7 +118,7 @@ export default function NewReportPage() {
                           <SelectTrigger><SelectValue placeholder="Select an establishment" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {establishments.map(e => <SelectItem key={e.id} value={String(e.id)}>{e.name}</SelectItem>)}
+                          {establishments.map(e => <SelectItem key={e.id} value={e.name}>{e.name}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -131,7 +127,7 @@ export default function NewReportPage() {
                 />
                 <FormField
                   control={form.control}
-                  name="teacherId"
+                  name="teacherLastName"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Teacher</FormLabel>
@@ -140,7 +136,7 @@ export default function NewReportPage() {
                           <SelectTrigger><SelectValue placeholder="Select a teacher" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                           {teachers.map(t => <SelectItem key={t.id} value={String(t.id)}>{t.firstName} {t.lastName}</SelectItem>)}
+                           {teachers.map(t => <SelectItem key={t.id} value={t.lastName}>{t.firstName} {t.lastName}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />

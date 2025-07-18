@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   username: string;
@@ -27,8 +28,8 @@ export interface Teacher {
 
 export interface Report {
     id: number;
-    establishment: Establishment;
-    teacher: Teacher;
+    establishment: { name: string };
+    teacher: { firstName: string; lastName: string };
     className: string;
     courseTitle: string;
     date: string;
