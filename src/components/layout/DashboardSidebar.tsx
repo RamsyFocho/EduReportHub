@@ -29,6 +29,7 @@ export function DashboardSidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const isAdmin = user?.roles?.includes("ROLE_ADMIN");
+  const isDirector = user?.roles?.includes("ROLE_DIRECTOR");
 
   const menuItems = [
     {
@@ -48,18 +49,23 @@ export function DashboardSidebar() {
     },
   ];
 
-  const adminMenuItems = [
-    {
-        href: "/dashboard/register-user",
-        label: "Register User",
-        icon: UserPlus,
-    },
+  const managementMenuItems = [
     {
         href: "/dashboard/upload-teachers",
         label: "Upload Teachers",
         icon: Upload,
+        roles: ["ROLE_ADMIN", "ROLE_DIRECTOR"]
     }
   ];
+
+  const adminMenuItems = [
+      {
+        href: "/dashboard/register-user",
+        label: "Register User",
+        icon: UserPlus,
+        roles: ["ROLE_ADMIN"]
+    },
+  ]
 
   return (
     <Sidebar>
@@ -87,11 +93,33 @@ export function DashboardSidebar() {
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
+
+        {(isAdmin || isDirector) && (
+            <SidebarGroup>
+                <SidebarGroupLabel>Management</SidebarGroupLabel>
+                <SidebarMenu>
+                {managementMenuItems.filter(item => user?.roles?.some(role => item.roles.includes(role))).map((item) => (
+                    <SidebarMenuItem key={item.href}>
+                    <Link href={item.href}>
+                        <SidebarMenuButton
+                        isActive={pathname === item.href}
+                        icon={item.icon}
+                        tooltip={item.label}
+                        >
+                        {item.label}
+                        </SidebarMenuButton>
+                    </Link>
+                    </SidebarMenuItem>
+                ))}
+                </SidebarMenu>
+            </SidebarGroup>
+        )}
+
         {isAdmin && (
             <SidebarGroup>
                 <SidebarGroupLabel>Admin</SidebarGroupLabel>
                 <SidebarMenu>
-                {adminMenuItems.map((item) => (
+                {adminMenuItems.filter(item => user?.roles?.some(role => item.roles.includes(role))).map((item) => (
                     <SidebarMenuItem key={item.href}>
                     <Link href={item.href}>
                         <SidebarMenuButton

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { Report } from "@/types";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { AnimatedPage } from "@/components/shared/AnimatedPage";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,8 +23,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Search } from "lucide-react";
+import { PlusCircle, Search, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -32,25 +39,42 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
+  const { user } = useAuth();
+  const canUpdateSanction = user?.roles?.includes("ROLE_ADMIN") || user?.roles?.includes("ROLE_DIRECTOR");
+
+  const fetchReports = async () => {
+    try {
+      setLoading(true);
+      const data = await api.get("/api/reports");
+      setReports(data);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Failed to fetch reports",
+        description: error instanceof Error ? error.message : "Could not load reports.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchReports = async () => {
-      try {
-        setLoading(true);
-        const data = await api.get("/api/reports");
-        setReports(data);
-      } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Failed to fetch reports",
-          description: error instanceof Error ? error.message : "Could not load reports.",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchReports();
-  }, [toast]);
+  }, []);
+
+  const handleSanctionUpdate = async (reportId: number, sanctionType: "NONE" | "WARNING" | "SUSPENSION") => {
+    try {
+      await api.put(`/api/reports/sanction/${reportId}`, { id: reportId, sanctionType });
+      toast({ title: "Success", description: "Report sanction updated." });
+      fetchReports(); // Refresh the list
+    } catch (error) {
+       toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: error instanceof Error ? error.message : "Could not update sanction.",
+      });
+    }
+  };
 
   const filteredReports = reports.filter(report => 
     report.teacher.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -62,13 +86,12 @@ export default function ReportsPage() {
   const getSanctionVariant = (sanction: string): "default" | "destructive" | "secondary" => {
     switch (sanction) {
         case "WARNING":
-            return "destructive";
         case "SUSPENSION":
             return "destructive";
         default:
             return "secondary";
     }
-  }
+  };
 
   return (
     <AnimatedPage>
@@ -106,6 +129,7 @@ export default function ReportsPage() {
                 <TableHead>Course</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Sanction</TableHead>
+                {canUpdateSanction && <TableHead className="text-right">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -117,6 +141,7 @@ export default function ReportsPage() {
                     <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-[70px] rounded-full" /></TableCell>
+                    {canUpdateSanction && <TableCell><Skeleton className="h-6 w-[30px] rounded-md ml-auto" /></TableCell>}
                   </TableRow>
                 ))
               ) : filteredReports.length > 0 ? (
@@ -129,11 +154,34 @@ export default function ReportsPage() {
                     <TableCell>
                         <Badge variant={getSanctionVariant(report.sanctionType)}>{report.sanctionType}</Badge>
                     </TableCell>
+                    {canUpdateSanction && (
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleSanctionUpdate(report.id, 'NONE')}>
+                              Set to None
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleSanctionUpdate(report.id, 'WARNING')}>
+                              Set to Warning
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleSanctionUpdate(report.id, 'SUSPENSION')}>
+                              Set to Suspension
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">
+                  <TableCell colSpan={canUpdateSanction ? 6 : 5} className="text-center">
                     No reports found.
                   </TableCell>
                 </TableRow>

@@ -13,44 +13,47 @@ export default function DashboardPage() {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
   const isAdmin = user?.roles?.includes("ROLE_ADMIN");
+  const isDirector = user?.roles?.includes("ROLE_DIRECTOR");
 
-  const adminStats = [
+  const stats = [
     {
       title: "Total Reports",
       value: "1,234",
       description: "+20.1% from last month",
       icon: <FileText className="h-4 w-4 text-muted-foreground" />,
+      roles: ["ROLE_ADMIN", "ROLE_DIRECTOR"]
+    },
+    {
+      title: "My Reports",
+      value: "82",
+      description: "3 created this week",
+      icon: <FileText className="h-4 w-4 text-muted-foreground" />,
+      roles: ["ROLE_INSPECTOR"]
     },
     {
       title: "Establishments",
       value: "57",
       description: "+2 since last week",
       icon: <Building2 className="h-4 w-4 text-muted-foreground" />,
+      roles: ["ROLE_ADMIN", "ROLE_DIRECTOR"]
     },
     {
       title: "Active Teachers",
       value: "789",
       description: "Across all establishments",
       icon: <Users className="h-4 w-4 text-muted-foreground" />,
-    },
-  ];
-
-  const inspectorStats = [
-     {
-      title: "My Reports",
-      value: "82",
-      description: "3 created this week",
-      icon: <FileText className="h-4 w-4 text-muted-foreground" />,
+      roles: ["ROLE_ADMIN", "ROLE_DIRECTOR"]
     },
      {
       title: "My Sanctions",
       value: "5",
       description: "1 warning issued",
       icon: <ShieldCheck className="h-4 w-4 text-muted-foreground" />,
+      roles: ["ROLE_INSPECTOR"]
     },
   ];
-  
-  const stats = isAdmin ? adminStats : inspectorStats;
+
+  const userStats = stats.filter(stat => user?.roles?.some(role => stat.roles.includes(role)));
 
   return (
     <AnimatedPage>
@@ -70,7 +73,7 @@ export default function DashboardPage() {
                 </Card>
              ))
           ) : (
-            stats.map((stat, index) => (
+            userStats.map((stat, index) => (
               <Card key={index}>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
@@ -91,11 +94,8 @@ export default function DashboardPage() {
              <Button asChild>
                 <Link href="/dashboard/reports/new">Create New Report</Link>
              </Button>
-             {isAdmin && (
+             {(isAdmin || isDirector) && (
                 <>
-                    <Button asChild variant="secondary">
-                        <Link href="/dashboard/register-user">Register New User</Link>
-                    </Button>
                     <Button asChild variant="secondary">
                         <Link href="/dashboard/upload-teachers">Upload Teachers</Link>
                     </Button>
@@ -103,6 +103,11 @@ export default function DashboardPage() {
                         <Link href="/dashboard/establishments">Manage Establishments</Link>
                     </Button>
                 </>
+             )}
+             {isAdmin && (
+                <Button asChild variant="secondary">
+                    <Link href="/dashboard/register-user">Register New User</Link>
+                </Button>
              )}
           </div>
         </div>

@@ -26,7 +26,7 @@ export default function EstablishmentsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
-  const isAdmin = user?.roles?.includes('ROLE_ADMIN');
+  const canManage = user?.roles?.includes('ROLE_ADMIN') || user?.roles?.includes('ROLE_DIRECTOR');
 
   const form = useForm<z.infer<typeof establishmentSchema>>({
     resolver: zodResolver(establishmentSchema),
@@ -93,7 +93,7 @@ export default function EstablishmentsPage() {
           </Card>
         </div>
         
-        {isAdmin && (
+        {canManage && (
           <div>
             <Card>
               <CardHeader>

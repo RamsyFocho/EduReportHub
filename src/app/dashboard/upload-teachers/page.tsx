@@ -37,7 +37,7 @@ export default function UploadTeachersPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
-  const isAdmin = user?.roles?.includes('ROLE_ADMIN');
+  const canUpload = user?.roles?.includes('ROLE_ADMIN') || user?.roles?.includes('ROLE_DIRECTOR');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fileName, setFileName] = useState('');
 
@@ -64,7 +64,7 @@ export default function UploadTeachersPage() {
     }
   }
   
-  if (!isAdmin) {
+  if (!canUpload) {
     router.push('/dashboard');
     return null;
   }
