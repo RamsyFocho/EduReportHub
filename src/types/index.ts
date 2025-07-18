@@ -1,10 +1,11 @@
 
-
 export interface User {
   id: string;
   username: string;
   email: string;
   roles: string[];
+  phoneNumber?: string;
+  address?: string;
 }
 
 export interface AuthContextType {
@@ -14,6 +15,7 @@ export interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  fetchUser: () => Promise<boolean>;
 }
 
 export interface Establishment {
@@ -59,5 +61,3 @@ export interface Report {
         email: string;
     }
 }
-
-    

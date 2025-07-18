@@ -79,13 +79,14 @@ export default function LoginPage() {
   // Show a loading state or redirect immediately if the user is already authenticated.
   if (loading || (!loading && isAuthenticated)) {
     return (
-        <div className="flex h-screen w-full items-center justify-center bg-background">
-            <div className="flex flex-col items-center gap-4">
-                <Skeleton className="h-12 w-12 rounded-full" />
-                <div className="space-y-2">
-                    <Skeleton className="h-4 w-[250px]" />
-                    <Skeleton className="h-4 w-[200px]" />
-                </div>
+        <div className="flex h-screen w-full flex-col items-center justify-center bg-background">
+            <div className="flex items-center gap-3 text-2xl font-headline font-semibold text-primary">
+                <BookOpenCheck className="h-8 w-8" />
+                <span>EduReport Hub</span>
+            </div>
+            <div className="mt-4 flex items-center gap-2">
+                <Skeleton className="h-4 w-4 rounded-full" />
+                <Skeleton className="h-3 w-[150px]" />
             </div>
         </div>
     );

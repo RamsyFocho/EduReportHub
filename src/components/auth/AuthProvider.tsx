@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -66,7 +67,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: !!token && !!user,
     login,
     logout,
-    loading
+    loading,
+    fetchUser
   };
 
   return (
