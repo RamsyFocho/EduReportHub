@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -34,7 +34,7 @@ export default function EstablishmentsPage() {
     defaultValues: { name: '' },
   });
 
-  const fetchEstablishments = async () => {
+  const fetchEstablishments = useCallback(async () => {
     try {
       setLoading(true);
       const data = await api.get('/api/establishments');
@@ -44,11 +44,11 @@ export default function EstablishmentsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchEstablishments();
-  }, []);
+  }, [fetchEstablishments]);
 
   async function onSubmit(values: z.infer<typeof establishmentSchema>) {
     setIsSubmitting(true);
@@ -56,17 +56,21 @@ export default function EstablishmentsPage() {
       await api.post('/api/establishments', values);
       toast({ title: 'Success', description: 'Establishment created successfully.' });
       form.reset();
-      fetchEstablishments();
+      fetchEstablishments(); // Refresh the list
     } catch (error: any) {
-        let description = "Failed to create establishment.";
-        if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
-            description = error.response.errors.join(', ');
-        } else if (error.message) {
-            description = error.message;
-        } else if (error.response?.message) {
-            description = error.response.message;
+        if (error.status === 409) {
+          toast({ variant: 'destructive', title: 'Creation Failed', description: `An establishment named "${values.name}" already exists.` });
+        } else {
+            let description = "Failed to create establishment.";
+            if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
+                description = error.response.errors.join(', ');
+            } else if (error.message) {
+                description = error.message;
+            } else if (error.response?.message) {
+                description = error.response.message;
+            }
+            toast({ variant: 'destructive', title: 'Error', description });
         }
-        toast({ variant: 'destructive', title: 'Error', description });
     } finally {
       setIsSubmitting(false);
     }

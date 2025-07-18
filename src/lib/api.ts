@@ -4,11 +4,13 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 class ApiError extends Error {
   response: any;
+  status: number;
 
-  constructor(message: string, response: any) {
+  constructor(message: string, response: any, status: number) {
     super(message);
     this.name = 'ApiError';
     this.response = response;
+    this.status = status;
   }
 }
 
@@ -34,7 +36,7 @@ async function request(endpoint: string, options: RequestInit = {}) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred' }));
-      throw new ApiError(errorData.message || `HTTP error! status: ${response.status}`, errorData);
+      throw new ApiError(errorData.message || `HTTP error! status: ${response.status}`, errorData, response.status);
     }
   
     if (response.status === 204) {
