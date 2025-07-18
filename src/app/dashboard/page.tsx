@@ -14,6 +14,7 @@ export default function DashboardPage() {
   const { t } = useTranslation();
   const isAdmin = user?.roles?.includes("ROLE_ADMIN");
   const isDirector = user?.roles?.includes("ROLE_DIRECTOR");
+  const isInspector = user?.roles?.includes("ROLE_INSPECTOR");
 
   const stats = [
     {
@@ -91,9 +92,11 @@ export default function DashboardPage() {
         <div className="mt-8">
           <h2 className="text-2xl font-semibold font-headline mb-4">Quick Actions</h2>
           <div className="flex flex-wrap gap-4">
-             <Button asChild>
-                <Link href="/dashboard/reports/new">Create New Report</Link>
-             </Button>
+             {isInspector && (
+                <Button asChild>
+                    <Link href="/dashboard/reports/new">Create New Report</Link>
+                </Button>
+             )}
              {(isAdmin || isDirector) && (
                 <>
                     <Button asChild variant="secondary">
