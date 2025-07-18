@@ -63,6 +63,8 @@ export default function EstablishmentsPage() {
             description = error.response.errors.join(', ');
         } else if (error.message) {
             description = error.message;
+        } else if (error.response?.message) {
+            description = error.response.message;
         }
         toast({ variant: 'destructive', title: 'Error', description });
     } finally {
