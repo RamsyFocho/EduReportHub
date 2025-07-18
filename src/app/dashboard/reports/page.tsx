@@ -48,7 +48,7 @@ export default function ReportsPage() {
     try {
       setLoading(true);
       const data = await api.get("/api/reports");
-      setReports(data);
+      setReports(data.content || []); // Handle paginated response
     } catch (error) {
       toast({
         variant: "destructive",
@@ -64,7 +64,7 @@ export default function ReportsPage() {
     fetchReports();
   }, []);
 
-  const handleSanctionUpdate = async (reportId: number, sanctionType: "NONE" | "WARNING" | "SUSPENSION") => {
+  const handleSanctionUpdate = async (reportId: number, sanctionType: "NONE" | "WARNING" | "SUSPENSION" | "COMMENDATION") => {
     setIsUpdating(true);
     try {
       await api.put(`/api/reports/sanction/${reportId}`, { id: reportId, sanctionType });
@@ -85,14 +85,18 @@ export default function ReportsPage() {
     (report.teacher?.firstName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (report.teacher?.lastName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (report.establishment?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (report.courseTitle?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    (report.courseTitle?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (report.createdBy?.username?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
   
-  const getSanctionVariant = (sanction: string): "default" | "destructive" | "secondary" => {
+  const getSanctionVariant = (sanction: string): "default" | "destructive" | "secondary" | "outline" => {
     switch (sanction) {
         case "WARNING":
         case "SUSPENSION":
             return "destructive";
+        case "COMMENDATION":
+            return "default";
+        case "NONE":
         default:
             return "secondary";
     }
@@ -118,7 +122,7 @@ export default function ReportsPage() {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input 
                 type="search" 
-                placeholder="Search by teacher, establishment, course..." 
+                placeholder="Search by teacher, establishment, course, inspector..." 
                 className="pl-8 sm:w-1/3"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -131,7 +135,7 @@ export default function ReportsPage() {
               <TableRow>
                 <TableHead>Teacher</TableHead>
                 <TableHead>Establishment</TableHead>
-                <TableHead>Course</TableHead>
+                <TableHead>Inspector</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Sanction</TableHead>
                 {canUpdateSanction && <TableHead className="text-right">Actions</TableHead>}
@@ -145,7 +149,7 @@ export default function ReportsPage() {
                     <TableCell><Skeleton className="h-4 w-[200px]" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-[70px] rounded-full" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-[100px] rounded-full" /></TableCell>
                     {canUpdateSanction && <TableCell><Skeleton className="h-6 w-[30px] rounded-md ml-auto" /></TableCell>}
                   </TableRow>
                 ))
@@ -154,7 +158,7 @@ export default function ReportsPage() {
                   <TableRow key={report.id}>
                     <TableCell>{report.teacher ? `${report.teacher.firstName} ${report.teacher.lastName}`: 'N/A'}</TableCell>
                     <TableCell>{report.establishment?.name || 'N/A'}</TableCell>
-                    <TableCell>{report.courseTitle}</TableCell>
+                    <TableCell>{report.createdBy?.username || 'N/A'}</TableCell>
                     <TableCell>{new Date(report.date).toLocaleDateString()}</TableCell>
                     <TableCell>
                         <Badge variant={getSanctionVariant(report.sanctionType)}>{report.sanctionType}</Badge>
@@ -169,14 +173,17 @@ export default function ReportsPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id, 'NONE')}>
-                              {isUpdating ? 'Updating...' : 'Set to None'}
+                            <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id, 'COMMENDATION')}>
+                              Set to Commendation
+                            </DropdownMenuItem>
+                             <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id, 'NONE')}>
+                              Set to None
                             </DropdownMenuItem>
                             <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id, 'WARNING')}>
-                              {isUpdating ? 'Updating...' : 'Set to Warning'}
+                              Set to Warning
                             </DropdownMenuItem>
                             <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id, 'SUSPENSION')}>
-                              {isUpdating ? 'Updating...' : 'Set to Suspension'}
+                              Set to Suspension
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

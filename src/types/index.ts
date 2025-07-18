@@ -32,8 +32,8 @@ export interface Teacher {
 
 export interface Report {
     id: number;
-    establishment: { name: string };
-    teacher: { firstName: string; lastName: string };
+    establishment: { id: number, name: string };
+    teacher: { id: number, firstName: string; lastName: string };
     className: string;
     courseTitle: string;
     date: string;
@@ -41,6 +41,14 @@ export interface Report {
     endTime: string;
     presentStudents: number;
     absentStudents: number;
+    totalStudents: number;
     observation: string;
-    sanctionType: "NONE" | "WARNING" | "SUSPENSION";
+    sanctionType: "NONE" | "WARNING" | "SUSPENSION" | "COMMENDATION";
+    createdAt: string;
+    updatedAt: string;
+    createdBy: {
+        id: number;
+        username: string;
+        email: string;
+    }
 }
