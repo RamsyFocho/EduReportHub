@@ -1,3 +1,4 @@
+
 "use client";
 
 import { usePathname } from "next/navigation";
@@ -21,6 +22,7 @@ import {
   Building2,
   UserPlus,
   Upload,
+  Users,
   LogOut,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -46,6 +48,11 @@ export function DashboardSidebar() {
       href: "/dashboard/establishments",
       label: "Establishments",
       icon: Building2,
+    },
+     {
+      href: "/dashboard/teachers",
+      label: "Teachers",
+      icon: Users,
     },
   ];
 

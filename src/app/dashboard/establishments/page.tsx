@@ -14,8 +14,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { List } from 'lucide-react';
+import { List, Pencil } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const establishmentSchema = z.object({
   name: z.string().min(3, { message: 'Establishment name must be at least 3 characters.' }),
@@ -25,6 +36,7 @@ export default function EstablishmentsPage() {
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingEstablishment, setEditingEstablishment] = useState<Establishment | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   const canManage = user?.roles?.includes('ROLE_ADMIN') || user?.roles?.includes('ROLE_DIRECTOR');
@@ -32,6 +44,10 @@ export default function EstablishmentsPage() {
   const form = useForm<z.infer<typeof establishmentSchema>>({
     resolver: zodResolver(establishmentSchema),
     defaultValues: { name: '' },
+  });
+  
+  const editForm = useForm<z.infer<typeof establishmentSchema>>({
+    resolver: zodResolver(establishmentSchema),
   });
 
   const fetchEstablishments = useCallback(async () => {
@@ -76,6 +92,28 @@ export default function EstablishmentsPage() {
     }
   }
 
+  async function handleEditSubmit(values: z.infer<typeof establishmentSchema>) {
+    if (!editingEstablishment) return;
+    setIsSubmitting(true);
+    try {
+        await api.put(`/api/establishments/${editingEstablishment.id}`, { name: values.name });
+        toast({ title: 'Success', description: 'Establishment updated successfully.' });
+        setEditingEstablishment(null);
+        fetchEstablishments();
+    } catch (error: any) {
+        toast({ variant: 'destructive', title: 'Update Failed', description: error.message || "Could not update establishment." });
+    } finally {
+        setIsSubmitting(false);
+    }
+  }
+
+  useEffect(() => {
+    if (editingEstablishment) {
+        editForm.reset({ name: editingEstablishment.name });
+    }
+  }, [editingEstablishment, editForm]);
+
+
   return (
     <AnimatedPage>
       <div className="grid gap-8 lg:grid-cols-3">
@@ -98,6 +136,15 @@ export default function EstablishmentsPage() {
                         <List className="h-5 w-5 text-primary" />
                         <span className="font-medium">{est.name}</span>
                       </div>
+                      {canManage && (
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" onClick={() => setEditingEstablishment(est)}>
+                                    <Pencil className="h-4 w-4" />
+                                </Button>
+                            </AlertDialogTrigger>
+                        </AlertDialog>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -139,6 +186,41 @@ export default function EstablishmentsPage() {
           </div>
         )}
       </div>
+      
+      {editingEstablishment && (
+        <AlertDialog open={!!editingEstablishment} onOpenChange={(open) => !open && setEditingEstablishment(null)}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Edit Establishment</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Update the name of the establishment. Click save when you're done.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <Form {...editForm}>
+                    <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
+                        <FormField
+                        control={editForm.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Establishment Name</FormLabel>
+                            <FormControl>
+                                <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                         <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save Changes'}</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </form>
+                </Form>
+            </AlertDialogContent>
+        </AlertDialog>
+      )}
+
     </AnimatedPage>
   );
 }
