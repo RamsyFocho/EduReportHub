@@ -9,6 +9,7 @@ import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpenCheck } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function DashboardLayout({
   children,
@@ -17,6 +18,7 @@ export default function DashboardLayout({
 }) {
   const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -29,7 +31,7 @@ export default function DashboardLayout({
         <div className="flex h-screen w-full flex-col items-center justify-center bg-background">
             <div className="flex items-center gap-3 text-2xl font-headline font-semibold text-primary">
                 <BookOpenCheck className="h-8 w-8" />
-                <span>EduReport Hub</span>
+                <span>{t('app_name')}</span>
             </div>
             <div className="mt-4 flex items-center gap-2">
                 <Skeleton className="h-4 w-4 rounded-full" />
@@ -41,7 +43,7 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-        <div className="flex">
+        <div className="flex min-h-screen">
             <DashboardSidebar />
             <SidebarInset>
                 <DashboardHeader />

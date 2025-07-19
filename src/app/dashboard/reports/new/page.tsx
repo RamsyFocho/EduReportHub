@@ -11,6 +11,7 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 
 import { api } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { AnimatedPage } from '@/components/shared/AnimatedPage';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,6 +40,7 @@ const reportSchema = z.object({
 export default function NewReportPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -53,11 +55,11 @@ export default function NewReportPage() {
         setEstablishments(estData);
         setTeachers(teacherData || []);
       } catch (error) {
-         toast({ variant: "destructive", title: "Failed to load data", description: "Could not load establishments or teachers." });
+         toast({ variant: "destructive", title: t('new_report_page.load_failed_title'), description: t('new_report_page.load_failed_desc') });
       }
     };
     fetchData();
-  }, [toast]);
+  }, [toast, t]);
 
   const form = useForm<z.infer<typeof reportSchema>>({
     resolver: zodResolver(reportSchema),
@@ -87,10 +89,10 @@ export default function NewReportPage() {
 
     try {
       await api.post('/api/reports', payload);
-      toast({ title: 'Success', description: 'Report created successfully.' });
+      toast({ title: t('success'), description: t('new_report_page.create_success') });
       router.push('/dashboard/reports');
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Error', description: error instanceof Error ? error.message : "Failed to create report." });
+      toast({ variant: 'destructive', title: t('error'), description: error instanceof Error ? error.message : t('new_report_page.create_failed') });
     } finally {
       setIsLoading(false);
     }
@@ -100,8 +102,8 @@ export default function NewReportPage() {
     <AnimatedPage>
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-2xl">Create New Report</CardTitle>
-          <CardDescription>Fill in the details of the inspection.</CardDescription>
+          <CardTitle className="font-headline text-2xl">{t('new_report_page.title')}</CardTitle>
+          <CardDescription>{t('new_report_page.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -112,10 +114,10 @@ export default function NewReportPage() {
                   name="establishmentName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Establishment</FormLabel>
+                      <FormLabel>{t('establishment')}</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select an establishment" /></SelectTrigger>
+                          <SelectTrigger><SelectValue placeholder={t('new_report_page.select_establishment')} /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {establishments.map(e => <SelectItem key={e.id} value={e.name}>{e.name}</SelectItem>)}
@@ -130,10 +132,10 @@ export default function NewReportPage() {
                   name="teacherLastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Teacher</FormLabel>
+                      <FormLabel>{t('teacher')}</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select a teacher" /></SelectTrigger>
+                          <SelectTrigger><SelectValue placeholder={t('new_report_page.select_teacher')} /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
                            {teachers.map(t => <SelectItem key={t.id} value={t.lastName}>{t.firstName} {t.lastName}</SelectItem>)}
@@ -143,19 +145,19 @@ export default function NewReportPage() {
                     </FormItem>
                   )}
                 />
-                <FormField control={form.control} name="className" render={({ field }) => (<FormItem><FormLabel>Class Name</FormLabel><FormControl><Input placeholder="e.g., 10A" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="courseTitle" render={({ field }) => (<FormItem><FormLabel>Course Title</FormLabel><FormControl><Input placeholder="e.g., Mathematics" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="className" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.class_name')}</FormLabel><FormControl><Input placeholder="e.g., 10A" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="courseTitle" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.course_title')}</FormLabel><FormControl><Input placeholder="e.g., Mathematics" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField
                   control={form.control}
                   name="date"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Date</FormLabel>
+                      <FormLabel>{t('date')}</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
-                              {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                              {field.value ? format(field.value, 'PPP') : <span>{t('new_report_page.pick_date')}</span>}
                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
                           </FormControl>
@@ -169,19 +171,19 @@ export default function NewReportPage() {
                   )}
                 />
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField control={form.control} name="startTime" render={({ field }) => (<FormItem><FormLabel>Start Time</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="endTime" render={({ field }) => (<FormItem><FormLabel>End Time</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="startTime" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.start_time')}</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="endTime" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.end_time')}</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 </div>
                  <div className="grid grid-cols-2 gap-4">
-                    <FormField control={form.control} name="presentStudents" render={({ field }) => (<FormItem><FormLabel>Present Students</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="absentStudents" render={({ field }) => (<FormItem><FormLabel>Absent Students</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="presentStudents" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.present_students')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="absentStudents" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.absent_students')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 </div>
               </div>
-               <FormField control={form.control} name="observation" render={({ field }) => (<FormItem><FormLabel>Observation</FormLabel><FormControl><Textarea placeholder="Describe your observations..." className="resize-y min-h-[100px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="observation" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.observation')}</FormLabel><FormControl><Textarea placeholder={t('new_report_page.observation_placeholder')} className="resize-y min-h-[100px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
 
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
-                <Button type="submit" disabled={isLoading}>{isLoading ? 'Submitting...' : 'Submit Report'}</Button>
+                <Button type="button" variant="outline" onClick={() => router.back()}>{t('cancel')}</Button>
+                <Button type="submit" disabled={isLoading}>{isLoading ? t('submitting') : t('new_report_page.submit_button')}</Button>
               </div>
             </form>
           </Form>

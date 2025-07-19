@@ -8,6 +8,7 @@ import * as z from 'zod';
 import { api } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Establishment } from '@/types';
 import { AnimatedPage } from '@/components/shared/AnimatedPage';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,6 +40,7 @@ export default function EstablishmentsPage() {
   const [editingEstablishment, setEditingEstablishment] = useState<Establishment | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const canManage = user?.roles?.includes('ROLE_ADMIN') || user?.roles?.includes('ROLE_DIRECTOR');
 
   const form = useForm<z.infer<typeof establishmentSchema>>({
@@ -56,11 +58,11 @@ export default function EstablishmentsPage() {
       const data = await api.get('/api/establishments');
       setEstablishments(data);
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Failed to fetch establishments' });
+      toast({ variant: 'destructive', title: t('establishments_page.fetch_failed') });
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, t]);
 
   useEffect(() => {
     fetchEstablishments();
@@ -70,14 +72,14 @@ export default function EstablishmentsPage() {
     setIsSubmitting(true);
     try {
       await api.post('/api/establishments', values);
-      toast({ title: 'Success', description: 'Establishment created successfully.' });
+      toast({ title: t('success'), description: t('establishments_page.create_success') });
       form.reset();
       fetchEstablishments(); // Refresh the list
     } catch (error: any) {
         if (error.status === 409) {
-          toast({ variant: 'destructive', title: 'Creation Failed', description: `An establishment named "${values.name}" already exists.` });
+          toast({ variant: 'destructive', title: t('creation_failed'), description: t('establishments_page.create_failed_conflict', { name: values.name }) });
         } else {
-            let description = "Failed to create establishment.";
+            let description = t('establishments_page.create_failed');
             if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
                 description = error.response.errors.join(', ');
             } else if (error.message) {
@@ -97,11 +99,11 @@ export default function EstablishmentsPage() {
     setIsSubmitting(true);
     try {
         await api.put(`/api/establishments/${editingEstablishment.id}`, { name: values.name });
-        toast({ title: 'Success', description: 'Establishment updated successfully.' });
+        toast({ title: t('success'), description: t('establishments_page.update_success') });
         setEditingEstablishment(null);
         fetchEstablishments();
     } catch (error: any) {
-        toast({ variant: 'destructive', title: 'Update Failed', description: error.message || "Could not update establishment." });
+        toast({ variant: 'destructive', title: t('update_failed'), description: error.message || t('establishments_page.update_failed_desc') });
     } finally {
         setIsSubmitting(false);
     }
@@ -120,8 +122,8 @@ export default function EstablishmentsPage() {
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline text-2xl">Establishments</CardTitle>
-              <CardDescription>List of all registered establishments.</CardDescription>
+              <CardTitle className="font-headline text-2xl">{t('establishments_page.title')}</CardTitle>
+              <CardDescription>{t('establishments_page.description')}</CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
@@ -157,8 +159,8 @@ export default function EstablishmentsPage() {
           <div>
             <Card>
               <CardHeader>
-                <CardTitle className="font-headline text-2xl">Create New</CardTitle>
-                <CardDescription>Add a new establishment to the system.</CardDescription>
+                <CardTitle className="font-headline text-2xl">{t('create_new')}</CardTitle>
+                <CardDescription>{t('establishments_page.create_description')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Form {...form}>
@@ -168,7 +170,7 @@ export default function EstablishmentsPage() {
                       name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Establishment Name</FormLabel>
+                          <FormLabel>{t('establishments_page.establishment_name')}</FormLabel>
                           <FormControl>
                             <Input placeholder="e.g., Springfield High" {...field} />
                           </FormControl>
@@ -177,7 +179,7 @@ export default function EstablishmentsPage() {
                       )}
                     />
                     <Button type="submit" className="w-full" disabled={isSubmitting}>
-                      {isSubmitting ? 'Creating...' : 'Create Establishment'}
+                      {isSubmitting ? t('creating') : t('establishments_page.create_button')}
                     </Button>
                   </form>
                 </Form>
@@ -191,9 +193,9 @@ export default function EstablishmentsPage() {
         <AlertDialog open={!!editingEstablishment} onOpenChange={(open) => !open && setEditingEstablishment(null)}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Edit Establishment</AlertDialogTitle>
+                    <AlertDialogTitle>{t('establishments_page.edit_title')}</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Update the name of the establishment. Click save when you're done.
+                        {t('establishments_page.edit_description')}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <Form {...editForm}>
@@ -203,7 +205,7 @@ export default function EstablishmentsPage() {
                         name="name"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Establishment Name</FormLabel>
+                            <FormLabel>{t('establishments_page.establishment_name')}</FormLabel>
                             <FormControl>
                                 <Input {...field} />
                             </FormControl>
@@ -212,8 +214,8 @@ export default function EstablishmentsPage() {
                         )}
                         />
                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save Changes'}</AlertDialogAction>
+                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                            <AlertDialogAction type="submit" disabled={isSubmitting}>{isSubmitting ? t('saving') : t('save_changes')}</AlertDialogAction>
                         </AlertDialogFooter>
                     </form>
                 </Form>

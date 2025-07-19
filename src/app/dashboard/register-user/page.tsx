@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from '@/hooks/useTranslation';
 import { AnimatedPage } from '@/components/shared/AnimatedPage';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -34,6 +35,7 @@ export default function RegisterUserPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const isAdmin = user?.roles?.includes('ROLE_ADMIN');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -52,17 +54,17 @@ export default function RegisterUserPage() {
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     setIsSubmitting(true);
     try {
-      const response = await api.post('/api/auth/register', values);
-      toast({ title: 'Success', description: 'User registered successfully. A verification email has been sent.' });
+      await api.post('/api/auth/register', values);
+      toast({ title: t('success'), description: t('register_user_page.success_desc') });
       form.reset();
     } catch (error: any) {
-      let description = "An unknown error occurred.";
+      let description = t('unknown_error');
        if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
           description = error.response.errors.join(', ');
       } else if (error.message) {
           description = error.message;
       }
-      toast({ variant: 'destructive', title: 'Registration Failed', description });
+      toast({ variant: 'destructive', title: t('registration_failed'), description });
     } finally {
       setIsSubmitting(false);
     }
@@ -78,25 +80,25 @@ export default function RegisterUserPage() {
       <div className="flex justify-center">
         <Card className="w-full max-w-2xl">
           <CardHeader>
-            <CardTitle className="font-headline text-2xl">Register New User</CardTitle>
-            <CardDescription>Create a new account for an inspector, director, or admin.</CardDescription>
+            <CardTitle className="font-headline text-2xl">{t('register_user_page.title')}</CardTitle>
+            <CardDescription>{t('register_user_page.description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
-                  <FormField control={form.control} name="username" render={({ field }) => ( <FormItem><FormLabel>Username</FormLabel><FormControl><Input placeholder="newuser" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                  <FormField control={form.control} name="email" render={({ field }) => ( <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="user@example.com" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                  <FormField control={form.control} name="password" render={({ field }) => ( <FormItem><FormLabel>Password</FormLabel><FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                  <FormField control={form.control} name="username" render={({ field }) => ( <FormItem><FormLabel>{t('username')}</FormLabel><FormControl><Input placeholder="newuser" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                  <FormField control={form.control} name="email" render={({ field }) => ( <FormItem><FormLabel>{t('email')}</FormLabel><FormControl><Input type="email" placeholder="user@example.com" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                  <FormField control={form.control} name="password" render={({ field }) => ( <FormItem><FormLabel>{t('password')}</FormLabel><FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl><FormMessage /></FormItem> )} />
                    <FormField
                     control={form.control}
                     name="role"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Role</FormLabel>
+                        <FormLabel>{t('role')}</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger><SelectValue placeholder="Select a role" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder={t('select_role')} /></SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             {roles.map(role => <SelectItem key={role} value={role}>{role.replace('ROLE_', '')}</SelectItem>)}
@@ -106,11 +108,11 @@ export default function RegisterUserPage() {
                       </FormItem>
                     )}
                   />
-                  <FormField control={form.control} name="phoneNumber" render={({ field }) => ( <FormItem><FormLabel>Phone Number (Optional)</FormLabel><FormControl><Input placeholder="+1234567890" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                  <FormField control={form.control} name="address" render={({ field }) => ( <FormItem><FormLabel>Address (Optional)</FormLabel><FormControl><Input placeholder="123 Main St" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                  <FormField control={form.control} name="phoneNumber" render={({ field }) => ( <FormItem><FormLabel>{t('phone_number_optional')}</FormLabel><FormControl><Input placeholder="+1234567890" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                  <FormField control={form.control} name="address" render={({ field }) => ( <FormItem><FormLabel>{t('address_optional')}</FormLabel><FormControl><Input placeholder="123 Main St" {...field} /></FormControl><FormMessage /></FormItem> )} />
                 </div>
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? 'Registering...' : 'Register User'}
+                  {isSubmitting ? t('registering') : t('register_user_page.register_button')}
                 </Button>
               </form>
             </Form>

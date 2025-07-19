@@ -1,9 +1,11 @@
+
 "use client";
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,31 +17,37 @@ function VerificationContent() {
   const router = useRouter();
   const token = searchParams.get('token');
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
-  const [message, setMessage] = useState('Verifying your email, please wait...');
+  const { t } = useTranslation();
+  const [message, setMessage] = useState(t('verify_email_page.verifying_message'));
 
   useEffect(() => {
     if (!token) {
       setStatus('error');
-      setMessage('Verification token is missing. Please check your link.');
+      setMessage(t('verify_email_page.missing_token'));
       return;
     }
 
     const verifyToken = async () => {
       try {
-        // The API redirects, but we can check the response status for success before it does.
-        // A more robust way would be for the API to return JSON on success/failure.
-        // Assuming the API call itself is what matters.
         await api.get(`/api/auth/verify?token=${token}`);
         setStatus('success');
-        setMessage('Your email has been successfully verified! You can now log in.');
+        setMessage(t('verify_email_page.success_message'));
       } catch (error) {
         setStatus('error');
-        setMessage(error instanceof Error ? error.message : 'Failed to verify email. The link may have expired.');
+        setMessage(error instanceof Error ? error.message : t('verify_email_page.error_message'));
       }
     };
 
     verifyToken();
-  }, [token, router]);
+  }, [token, router, t]);
+
+  const getTitle = () => {
+      switch(status) {
+          case 'verifying': return t('verify_email_page.verifying_title');
+          case 'success': return t('verify_email_page.success_title');
+          case 'error': return t('verify_email_page.error_title');
+      }
+  }
 
   return (
     <AnimatedPage>
@@ -52,16 +60,14 @@ function VerificationContent() {
               {status === 'error' && <XCircle className="h-12 w-12 text-destructive" />}
             </div>
             <CardTitle className="font-headline text-2xl mt-4">
-              {status === 'verifying' && 'Verifying...'}
-              {status === 'success' && 'Verification Successful'}
-              {status === 'error' && 'Verification Failed'}
+              {getTitle()}
             </CardTitle>
             <CardDescription>{message}</CardDescription>
           </CardHeader>
           {status !== 'verifying' && (
             <CardContent>
               <Button asChild>
-                <Link href="/">Go to Login</Link>
+                <Link href="/">{t('verify_email_page.go_to_login')}</Link>
               </Button>
             </CardContent>
           )}

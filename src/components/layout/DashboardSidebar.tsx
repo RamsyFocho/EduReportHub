@@ -26,32 +26,41 @@ import {
   LogOut,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useRouter } from "next/navigation";
 
 export function DashboardSidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
+  const router = useRouter();
   const isAdmin = user?.roles?.includes("ROLE_ADMIN");
   const isDirector = user?.roles?.includes("ROLE_DIRECTOR");
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  };
 
   const menuItems = [
     {
       href: "/dashboard",
-      label: "Dashboard",
+      labelKey: "dashboard.title",
       icon: LayoutDashboard,
     },
     {
       href: "/dashboard/reports",
-      label: "Reports",
+      labelKey: "reports_page.title",
       icon: FileText,
     },
     {
       href: "/dashboard/establishments",
-      label: "Establishments",
+      labelKey: "establishments_page.title",
       icon: Building2,
     },
      {
       href: "/dashboard/teachers",
-      label: "Teachers",
+      labelKey: "teachers_page.title",
       icon: Users,
     },
   ];
@@ -59,7 +68,7 @@ export function DashboardSidebar() {
   const managementMenuItems = [
     {
         href: "/dashboard/upload-teachers",
-        label: "Upload Teachers",
+        labelKey: "upload_teachers_page.title",
         icon: Upload,
         roles: ["ROLE_ADMIN", "ROLE_DIRECTOR"]
     }
@@ -68,7 +77,7 @@ export function DashboardSidebar() {
   const adminMenuItems = [
       {
         href: "/dashboard/register-user",
-        label: "Register User",
+        labelKey: "register_user_page.title",
         icon: UserPlus,
         roles: ["ROLE_ADMIN"]
     },
@@ -81,7 +90,7 @@ export function DashboardSidebar() {
             <Button variant="ghost" className="h-10 w-10 p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
                 <BookOpenCheck className="h-6 w-6" />
             </Button>
-            <h1 className="text-xl font-semibold font-headline">EduReport</h1>
+            <h1 className="text-xl font-semibold font-headline">{t('app_name_short')}</h1>
         </Link>
       </SidebarHeader>
       <SidebarContent>
@@ -92,9 +101,9 @@ export function DashboardSidebar() {
                 <SidebarMenuButton
                   isActive={pathname === item.href}
                   icon={item.icon}
-                  tooltip={item.label}
+                  tooltip={t(item.labelKey)}
                 >
-                  {item.label}
+                  {t(item.labelKey)}
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
@@ -103,7 +112,7 @@ export function DashboardSidebar() {
 
         {(isAdmin || isDirector) && (
             <SidebarGroup>
-                <SidebarGroupLabel>Management</SidebarGroupLabel>
+                <SidebarGroupLabel>{t('management')}</SidebarGroupLabel>
                 <SidebarMenu>
                 {managementMenuItems.filter(item => user?.roles?.some(role => item.roles.includes(role))).map((item) => (
                     <SidebarMenuItem key={item.href}>
@@ -111,9 +120,9 @@ export function DashboardSidebar() {
                         <SidebarMenuButton
                         isActive={pathname === item.href}
                         icon={item.icon}
-                        tooltip={item.label}
+                        tooltip={t(item.labelKey)}
                         >
-                        {item.label}
+                        {t(item.labelKey)}
                         </SidebarMenuButton>
                     </Link>
                     </SidebarMenuItem>
@@ -124,7 +133,7 @@ export function DashboardSidebar() {
 
         {isAdmin && (
             <SidebarGroup>
-                <SidebarGroupLabel>Admin</SidebarGroupLabel>
+                <SidebarGroupLabel>{t('admin')}</SidebarGroupLabel>
                 <SidebarMenu>
                 {adminMenuItems.filter(item => user?.roles?.some(role => item.roles.includes(role))).map((item) => (
                     <SidebarMenuItem key={item.href}>
@@ -132,9 +141,9 @@ export function DashboardSidebar() {
                         <SidebarMenuButton
                         isActive={pathname === item.href}
                         icon={item.icon}
-                        tooltip={item.label}
+                        tooltip={t(item.labelKey)}
                         >
-                        {item.label}
+                        {t(item.labelKey)}
                         </SidebarMenuButton>
                     </Link>
                     </SidebarMenuItem>
@@ -144,9 +153,9 @@ export function DashboardSidebar() {
         )}
       </SidebarContent>
       <SidebarFooter>
-        <Button variant="ghost" onClick={logout} className="w-full justify-start gap-2">
+        <Button variant="ghost" onClick={handleLogout} className="w-full justify-start gap-2">
             <LogOut className="h-4 w-4" />
-            <span className="group-data-[collapsible=icon]:hidden">Logout</span>
+            <span className="group-data-[collapsible=icon]:hidden">{t('logout')}</span>
         </Button>
       </SidebarFooter>
     </Sidebar>

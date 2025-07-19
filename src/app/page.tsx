@@ -18,18 +18,18 @@ export default function LandingPage() {
   const featureCards = [
     {
       icon: <CheckSquare className="h-8 w-8 text-primary" />,
-      title: t('features.streamlined_reporting'),
-      description: t('features.streamlined_reporting_desc'),
+      title: t('features.streamlined_reporting.title'),
+      description: t('features.streamlined_reporting.description'),
     },
     {
       icon: <BarChart className="h-8 w-8 text-primary" />,
-      title: t('features.data_analytics'),
-      description: t('features.data_analytics_desc'),
+      title: t('features.data_analytics.title'),
+      description: t('features.data_analytics.description'),
     },
     {
       icon: <Users className="h-8 w-8 text-primary" />,
-      title: t('features.user_management'),
-      description: t('features.user_management_desc'),
+      title: t('features.user_management.title'),
+      description: t('features.user_management.description'),
     },
   ];
 
@@ -39,7 +39,7 @@ export default function LandingPage() {
         <div className="container flex h-14 items-center">
           <Link href="/" className="flex items-center gap-2 font-bold">
             <BookOpenCheck className="h-6 w-6 text-primary" />
-            <span className="font-headline text-xl">EduReport Hub</span>
+            <span className="font-headline text-xl">{t('app_name')}</span>
           </Link>
           <nav className="flex items-center gap-4 ml-auto">
             <LanguageSwitcher />
@@ -124,7 +124,7 @@ export default function LandingPage() {
       
       <footer className="bg-secondary border-t">
         <div className="container py-6 text-center text-muted-foreground text-sm">
-          © {new Date().getFullYear()} EduReport Hub. {t('footer.rights_reserved')}
+          © {new Date().getFullYear()} {t('app_name')}. {t('footer.rights_reserved')}
         </div>
       </footer>
     </div>

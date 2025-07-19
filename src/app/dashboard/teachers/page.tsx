@@ -8,6 +8,7 @@ import * as z from 'zod';
 import { api } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Teacher } from '@/types';
 import { AnimatedPage } from '@/components/shared/AnimatedPage';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,6 +45,7 @@ export default function TeachersPage() {
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const canManage = user?.roles?.includes('ROLE_ADMIN') || user?.roles?.includes('ROLE_DIRECTOR');
 
   const form = useForm<z.infer<typeof teacherSchema>>({
@@ -56,11 +58,11 @@ export default function TeachersPage() {
       const data = await api.get('/api/teachers');
       setTeachers(data);
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Failed to fetch teachers', description: "Could not load the list of teachers." });
+      toast({ variant: 'destructive', title: t('teachers_page.fetch_failed_title'), description: t('teachers_page.fetch_failed_desc') });
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, t]);
 
   useEffect(() => {
     fetchTeachers();
@@ -71,17 +73,17 @@ export default function TeachersPage() {
     setIsSubmitting(true);
     try {
       await api.put(`/api/teachers/${editingTeacher.id}`, values);
-      toast({ title: 'Success', description: 'Teacher updated successfully.' });
+      toast({ title: t('success'), description: t('teachers_page.update_success') });
       setEditingTeacher(null);
       fetchTeachers();
     } catch (error: any) {
-      let description = "Could not update teacher.";
+      let description = t('teachers_page.update_failed_desc_generic');
       if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
           description = error.response.errors.join(', ');
       } else if (error.message) {
           description = error.message;
       }
-      toast({ variant: 'destructive', title: 'Update Failed', description });
+      toast({ variant: 'destructive', title: t('update_failed'), description });
     } finally {
       setIsSubmitting(false);
     }
@@ -111,56 +113,58 @@ export default function TeachersPage() {
     <AnimatedPage>
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-2xl">Teachers</CardTitle>
-          <CardDescription>View and manage all registered teachers.</CardDescription>
+          <CardTitle className="font-headline text-2xl">{t('teachers_page.title')}</CardTitle>
+          <CardDescription>{t('teachers_page.description')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Teacher ID</TableHead>
-                <TableHead>First Name</TableHead>
-                <TableHead>Last Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Gender</TableHead>
-                {canManage && <TableHead className="text-right">Actions</TableHead>}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[180px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
-                    {canManage && <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>}
-                  </TableRow>
-                ))
-              ) : (
-                teachers.map((teacher) => (
-                  <TableRow key={teacher.id}>
-                    <TableCell>{teacher.teacherId || 'N/A'}</TableCell>
-                    <TableCell>{teacher.firstName}</TableCell>
-                    <TableCell>{teacher.lastName}</TableCell>
-                    <TableCell>{teacher.email || 'N/A'}</TableCell>
-                    <TableCell>{teacher.phone || 'N/A'}</TableCell>
-                    <TableCell>{teacher.gender || 'N/A'}</TableCell>
-                    {canManage && (
-                      <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(teacher)}>
-                              <Pencil className="h-4 w-4" />
-                          </Button>
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="hidden sm:table-cell">{t('teachers_page.teacher_id')}</TableHead>
+                  <TableHead>{t('first_name')}</TableHead>
+                  <TableHead>{t('last_name')}</TableHead>
+                  <TableHead className="hidden md:table-cell">{t('email')}</TableHead>
+                  <TableHead className="hidden lg:table-cell">{t('phone')}</TableHead>
+                  <TableHead className="hidden lg:table-cell">{t('gender')}</TableHead>
+                  {canManage && <TableHead className="text-right">{t('actions')}</TableHead>}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-[100px]" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
+                      <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-[180px]" /></TableCell>
+                      <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-[100px]" /></TableCell>
+                      <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-[80px]" /></TableCell>
+                      {canManage && <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>}
+                    </TableRow>
+                  ))
+                ) : (
+                  teachers.map((teacher) => (
+                    <TableRow key={teacher.id}>
+                      <TableCell className="hidden sm:table-cell">{teacher.teacherId || 'N/A'}</TableCell>
+                      <TableCell>{teacher.firstName}</TableCell>
+                      <TableCell>{teacher.lastName}</TableCell>
+                      <TableCell className="hidden md:table-cell">{teacher.email || 'N/A'}</TableCell>
+                      <TableCell className="hidden lg:table-cell">{teacher.phone || 'N/A'}</TableCell>
+                      <TableCell className="hidden lg:table-cell">{teacher.gender || 'N/A'}</TableCell>
+                      {canManage && (
+                        <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(teacher)}>
+                                <Pencil className="h-4 w-4" />
+                            </Button>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
       
@@ -168,25 +172,25 @@ export default function TeachersPage() {
         <AlertDialog open={!!editingTeacher} onOpenChange={(open) => !open && handleCloseDialog()}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Edit Teacher</AlertDialogTitle>
-                    <AlertDialogDescription>Update the teacher's details for ID: {editingTeacher.teacherId || editingTeacher.id}</AlertDialogDescription>
+                    <AlertDialogTitle>{t('teachers_page.edit_title')}</AlertDialogTitle>
+                    <AlertDialogDescription>{t('teachers_page.edit_description', { id: editingTeacher.teacherId || editingTeacher.id })}</AlertDialogDescription>
                 </AlertDialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleEditSubmit)} className="space-y-4">
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField control={form.control} name="firstName" render={({ field }) => ( <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="John" {...field} /></FormControl><FormMessage /></FormItem> )}/>
-                        <FormField control={form.control} name="lastName" render={({ field }) => ( <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Doe" {...field} /></FormControl><FormMessage /></FormItem> )}/>
-                        <FormField control={form.control} name="email" render={({ field }) => ( <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="john.doe@example.com" {...field} /></FormControl><FormMessage /></FormItem> )}/>
-                        <FormField control={form.control} name="phone" render={({ field }) => ( <FormItem><FormLabel>Phone</FormLabel><FormControl><Input placeholder="+123456789" {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                        <FormField control={form.control} name="firstName" render={({ field }) => ( <FormItem><FormLabel>{t('first_name')}</FormLabel><FormControl><Input placeholder="John" {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                        <FormField control={form.control} name="lastName" render={({ field }) => ( <FormItem><FormLabel>{t('last_name')}</FormLabel><FormControl><Input placeholder="Doe" {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                        <FormField control={form.control} name="email" render={({ field }) => ( <FormItem><FormLabel>{t('email')}</FormLabel><FormControl><Input type="email" placeholder="john.doe@example.com" {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                        <FormField control={form.control} name="phone" render={({ field }) => ( <FormItem><FormLabel>{t('phone')}</FormLabel><FormControl><Input placeholder="+123456789" {...field} /></FormControl><FormMessage /></FormItem> )}/>
                         <FormField control={form.control} name="gender" render={({ field }) => ( 
                             <FormItem>
-                                <FormLabel>Gender</FormLabel>
+                                <FormLabel>{t('gender')}</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl><SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger></FormControl>
+                                    <FormControl><SelectTrigger><SelectValue placeholder={t('teachers_page.select_gender')} /></SelectTrigger></FormControl>
                                     <SelectContent>
-                                        <SelectItem value="MALE">Male</SelectItem>
-                                        <SelectItem value="FEMALE">Female</SelectItem>
-                                        <SelectItem value="OTHER">Other</SelectItem>
+                                        <SelectItem value="MALE">{t('male')}</SelectItem>
+                                        <SelectItem value="FEMALE">{t('female')}</SelectItem>
+                                        <SelectItem value="OTHER">{t('other')}</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -194,8 +198,8 @@ export default function TeachersPage() {
                         )}/>
                        </div>
                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save Changes'}</AlertDialogAction>
+                          <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                          <AlertDialogAction type="submit" disabled={isSubmitting}>{isSubmitting ? t('saving') : t('save_changes')}</AlertDialogAction>
                       </AlertDialogFooter>
                     </form>
                 </Form>

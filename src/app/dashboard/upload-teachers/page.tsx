@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from '@/hooks/useTranslation';
 import { AnimatedPage } from '@/components/shared/AnimatedPage';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -39,6 +40,7 @@ export default function UploadTeachersPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const canUpload = user?.roles?.includes('ROLE_ADMIN') || user?.roles?.includes('ROLE_DIRECTOR');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fileName, setFileName] = useState('');
@@ -56,17 +58,17 @@ export default function UploadTeachersPage() {
 
     try {
       await api.postFormData('/api/teachers/upload', formData);
-      toast({ title: 'Success', description: 'Teachers uploaded successfully. The data is being processed.' });
+      toast({ title: t('success'), description: t('upload_teachers_page.success_desc') });
       form.reset();
       setFileName('');
     } catch (error: any) {
-      let description = "An unknown error occurred during upload.";
+      let description = t('upload_teachers_page.failed_desc_generic');
       if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
           description = error.response.errors.join(', ');
       } else if (error.message) {
           description = error.message;
       }
-      toast({ variant: 'destructive', title: 'Upload Failed', description });
+      toast({ variant: 'destructive', title: t('upload_failed'), description });
     } finally {
       setIsSubmitting(false);
     }
@@ -82,8 +84,8 @@ export default function UploadTeachersPage() {
       <div className="flex justify-center">
         <Card className="w-full max-w-2xl">
           <CardHeader>
-            <CardTitle className="font-headline text-2xl">Upload Teachers</CardTitle>
-            <CardDescription>Bulk upload teacher data from an Excel or CSV file.</CardDescription>
+            <CardTitle className="font-headline text-2xl">{t('upload_teachers_page.title')}</CardTitle>
+            <CardDescription>{t('upload_teachers_page.description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -93,16 +95,16 @@ export default function UploadTeachersPage() {
                   name="file"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Teacher Data File</FormLabel>
+                      <FormLabel>{t('upload_teachers_page.file_label')}</FormLabel>
                       <FormControl>
                         <div className="relative flex items-center justify-center w-full">
                           <label htmlFor="file-upload" className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted">
                             <div className="flex flex-col items-center justify-center pt-5 pb-6">
                               <Upload className="w-10 h-10 mb-3 text-muted-foreground" />
                               <p className="mb-2 text-sm text-muted-foreground">
-                                <span className="font-semibold text-primary">Click to upload</span> or drag and drop
+                                <span className="font-semibold text-primary">{t('click_to_upload')}</span> {t('or_drag_and_drop')}
                               </p>
-                              <p className="text-xs text-muted-foreground">Excel or CSV (up to 5MB)</p>
+                              <p className="text-xs text-muted-foreground">{t('upload_teachers_page.file_types')}</p>
                               {fileName && <p className="mt-4 text-sm font-medium text-foreground">{fileName}</p>}
                             </div>
                             <Input 
@@ -123,7 +125,7 @@ export default function UploadTeachersPage() {
                   )}
                 />
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? 'Uploading...' : 'Upload File'}
+                  {isSubmitting ? t('uploading') : t('upload_teachers_page.upload_button')}
                 </Button>
               </form>
             </Form>

@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { Report } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "@/hooks/useTranslation";
 import { AnimatedPage } from "@/components/shared/AnimatedPage";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -61,6 +62,7 @@ export default function ReportsPage() {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const canUpdateSanction = user?.roles?.includes("ROLE_ADMIN") || user?.roles?.includes("ROLE_DIRECTOR");
 
   const fetchReports = useCallback(async (endpoint = "/api/reports") => {
@@ -69,9 +71,9 @@ export default function ReportsPage() {
       const data = await api.get(endpoint);
       console.log("Data from backend:", data);
 
-      if (Array.isArray(data)) { // Direct array response
+      if (Array.isArray(data)) {
         setReports(data);
-      } else if (data && Array.isArray(data.content)) { // Paginated response
+      } else if (data && Array.isArray(data.content)) {
         setReports(data.content);
       } else {
         setReports([]);
@@ -80,14 +82,14 @@ export default function ReportsPage() {
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Failed to fetch reports",
-        description: error instanceof Error ? error.message : "Could not load reports.",
+        title: t('reports_page.fetch_failed_title'),
+        description: error instanceof Error ? error.message : t('reports_page.fetch_failed_desc'),
       });
       setReports([]);
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, t]);
 
   useEffect(() => {
     fetchReports();
@@ -95,7 +97,7 @@ export default function ReportsPage() {
 
   const handleSearch = () => {
     if (!searchTerm.trim()) {
-        fetchReports(); // fetch all if search term is empty
+        fetchReports();
         return;
     }
     const endpoints: Record<SearchType, string> = {
@@ -118,8 +120,7 @@ export default function ReportsPage() {
     setIsUpdating(true);
     try {
       await api.put(`/api/reports/sanction/${reportId}`, { id: reportId, sanctionType });
-      toast({ title: "Success", description: "Report sanction updated." });
-      // Refetch the currently displayed list
+      toast({ title: t('success'), description: t('reports_page.sanction_update_success') });
       if (searchTerm.trim()) {
           handleSearch();
       } else {
@@ -128,8 +129,8 @@ export default function ReportsPage() {
     } catch (error) {
        toast({
         variant: "destructive",
-        title: "Update Failed",
-        description: error instanceof Error ? error.message : "Could not update sanction.",
+        title: t('update_failed'),
+        description: error instanceof Error ? error.message : t('reports_page.sanction_update_failed'),
       });
     } finally {
         setIsUpdating(false);
@@ -154,55 +155,57 @@ export default function ReportsPage() {
     <AnimatedPage>
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
             <div>
-                <CardTitle className="font-headline text-2xl">Reports</CardTitle>
-                <CardDescription>View, search, and manage all inspection reports.</CardDescription>
+                <CardTitle className="font-headline text-2xl">{t('reports_page.title')}</CardTitle>
+                <CardDescription>{t('reports_page.description')}</CardDescription>
             </div>
             <Link href="/dashboard/reports/new" passHref>
-                <Button>
+                <Button className="w-full sm:w-auto">
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    Create Report
+                    {t('reports_page.create_report')}
                 </Button>
             </Link>
           </div>
-          <div className="flex items-center gap-2 mt-4">
+          <div className="flex flex-col sm:flex-row items-center gap-2 mt-4">
             <Select value={searchType} onValueChange={(value) => setSearchType(value as SearchType)}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Search by..." />
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder={t('reports_page.search_by')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="teacher">Teacher</SelectItem>
-                <SelectItem value="establishment">Establishment</SelectItem>
-                <SelectItem value="class">Class</SelectItem>
-                <SelectItem value="course">Course</SelectItem>
-                <SelectItem value="description">Description</SelectItem>
+                <SelectItem value="teacher">{t('teacher')}</SelectItem>
+                <SelectItem value="establishment">{t('establishment')}</SelectItem>
+                <SelectItem value="class">{t('class')}</SelectItem>
+                <SelectItem value="course">{t('course')}</SelectItem>
+                <SelectItem value="description">{t('description')}</SelectItem>
               </SelectContent>
             </Select>
-            <div className="relative flex-grow">
+            <div className="relative flex-grow w-full">
               <Input 
                   type="search" 
-                  placeholder={`Search by ${searchType}...`}
+                  placeholder={t('reports_page.search_placeholder', { type: searchType })}
                   className="w-full"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
             </div>
-            <Button onClick={handleSearch}><Search className="mr-2 h-4 w-4" />Search</Button>
-            <Button variant="ghost" onClick={handleClearSearch}><Eraser className="mr-2 h-4 w-4" />Clear</Button>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button onClick={handleSearch} className="flex-grow"><Search className="mr-2 h-4 w-4" />{t('search')}</Button>
+              <Button variant="ghost" onClick={handleClearSearch} className="flex-grow"><Eraser className="mr-2 h-4 w-4" />{t('clear')}</Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Teacher</TableHead>
-                <TableHead>Establishment</TableHead>
-                <TableHead>Course</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Sanction</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t('teacher')}</TableHead>
+                <TableHead className="hidden md:table-cell">{t('establishment')}</TableHead>
+                <TableHead className="hidden lg:table-cell">{t('course')}</TableHead>
+                <TableHead className="hidden lg:table-cell">{t('date')}</TableHead>
+                <TableHead>{t('sanction')}</TableHead>
+                <TableHead className="text-right">{t('actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -210,27 +213,28 @@ export default function ReportsPage() {
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-4 w-[150px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[200px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
+                    <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-[200px]" /></TableCell>
+                    <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-[120px]" /></TableCell>
+                    <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-[80px]" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-[100px] rounded-full" /></TableCell>
-                    <TableCell><Skeleton className="h-8 w-[150px] rounded-md ml-auto" /></TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
                   </TableRow>
                 ))
               ) : reports.length > 0 ? (
                 reports.map((report) => (
                   <TableRow key={report.id || report.reportId}>
                     <TableCell>{report.teacher ? `${report.teacher.firstName} ${report.teacher.lastName}`: 'N/A'}</TableCell>
-                    <TableCell>{report.establishment?.name || 'N/A'}</TableCell>
-                    <TableCell>{report.courseTitle || 'N/A'}</TableCell>
-                    <TableCell>{new Date(report.date).toLocaleDateString()}</TableCell>
+                    <TableCell className="hidden md:table-cell">{report.establishment?.name || 'N/A'}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{report.courseTitle || 'N/A'}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{new Date(report.date).toLocaleDateString()}</TableCell>
                     <TableCell>
                         <Badge variant={getSanctionVariant(report.sanctionType)}>{report.sanctionType || 'NONE'}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                        <div className="flex items-center justify-end gap-2">
                         <Button variant="outline" size="sm" onClick={() => setSelectedReport(report)}>
-                          <Eye className="mr-2 h-4 w-4" /> View Details
+                          <Eye className="mr-0 sm:mr-2 h-4 w-4" />
+                          <span className="hidden sm:inline">{t('reports_page.view_details')}</span>
                         </Button>
                         {canUpdateSanction && (
                             <DropdownMenu>
@@ -241,10 +245,10 @@ export default function ReportsPage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id || report.reportId, 'COMMENDATION')}>Set to Commendation</DropdownMenuItem>
-                                <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id || report.reportId, 'NONE')}>Set to None</DropdownMenuItem>
-                                <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id || report.reportId, 'WARNING')}>Set to Warning</DropdownMenuItem>
-                                <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id || report.reportId, 'SUSPENSION')}>Set to Suspension</DropdownMenuItem>
+                                <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id || report.reportId, 'COMMENDATION')}>{t('reports_page.set_commendation')}</DropdownMenuItem>
+                                <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id || report.reportId, 'NONE')}>{t('reports_page.set_none')}</DropdownMenuItem>
+                                <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id || report.reportId, 'WARNING')}>{t('reports_page.set_warning')}</DropdownMenuItem>
+                                <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.id || report.reportId, 'SUSPENSION')}>{t('reports_page.set_suspension')}</DropdownMenuItem>
                             </DropdownMenuContent>
                             </DropdownMenu>
                         )}
@@ -255,7 +259,7 @@ export default function ReportsPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center h-24">
-                    No reports found.
+                    {t('reports_page.no_reports_found')}
                   </TableCell>
                 </TableRow>
               )}
@@ -269,44 +273,44 @@ export default function ReportsPage() {
           {selectedReport && (
             <>
               <DialogHeader>
-                <DialogTitle className="font-headline text-2xl">Report Details (ID: {selectedReport.id || selectedReport.reportId})</DialogTitle>
+                <DialogTitle className="font-headline text-2xl">{t('reports_page.details_title', {id: selectedReport.id || selectedReport.reportId})}</DialogTitle>
                 <DialogDescription>
-                  Full details for the inspection conducted on {new Date(selectedReport.date).toLocaleDateString()}.
+                  {t('reports_page.details_description', {date: new Date(selectedReport.date).toLocaleDateString()})}
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-6 py-4 max-h-[70vh] overflow-y-auto pr-4">
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
-                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">Inspector</span> <span className="font-medium">{selectedReport.createdBy?.username || 'N/A'}</span></div>
-                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">Establishment</span> <span className="font-medium">{selectedReport.establishment?.name || 'N/A'}</span></div>
-                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">Teacher</span> <span className="font-medium">{selectedReport.teacher ? `${selectedReport.teacher.firstName} ${selectedReport.teacher.lastName}`: 'N/A'}</span></div>
-                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">Course</span> <span className="font-medium">{selectedReport.courseTitle}</span></div>
-                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">Class</span> <span className="font-medium">{selectedReport.className}</span></div>
-                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">Date</span> <span className="font-medium">{new Date(selectedReport.date).toLocaleDateString()}</span></div>
-                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">Time</span> <span className="font-medium">{selectedReport.startTime} - {selectedReport.endTime}</span></div>
-                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">Sanction</span> <Badge variant={getSanctionVariant(selectedReport.sanctionType)} className="w-fit">{selectedReport.sanctionType || 'NONE'}</Badge></div>
-                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">Sanction Date</span> <span className="font-medium">{selectedReport.dateIssued ? new Date(selectedReport.dateIssued).toLocaleDateString() : 'N/A'}</span></div>
+                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('inspector')}</span> <span className="font-medium">{selectedReport.createdBy?.username || 'N/A'}</span></div>
+                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('establishment')}</span> <span className="font-medium">{selectedReport.establishment?.name || 'N/A'}</span></div>
+                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('teacher')}</span> <span className="font-medium">{selectedReport.teacher ? `${selectedReport.teacher.firstName} ${selectedReport.teacher.lastName}`: 'N/A'}</span></div>
+                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('course')}</span> <span className="font-medium">{selectedReport.courseTitle}</span></div>
+                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('class')}</span> <span className="font-medium">{selectedReport.className}</span></div>
+                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('date')}</span> <span className="font-medium">{new Date(selectedReport.date).toLocaleDateString()}</span></div>
+                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('time')}</span> <span className="font-medium">{selectedReport.startTime} - {selectedReport.endTime}</span></div>
+                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('sanction')}</span> <Badge variant={getSanctionVariant(selectedReport.sanctionType)} className="w-fit">{selectedReport.sanctionType || 'NONE'}</Badge></div>
+                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('reports_page.sanction_date')}</span> <span className="font-medium">{selectedReport.dateIssued ? new Date(selectedReport.dateIssued).toLocaleDateString() : 'N/A'}</span></div>
                 </div>
 
                 <Separator />
                 
-                <h3 className="font-semibold text-lg">Attendance</h3>
+                <h3 className="font-semibold text-lg">{t('attendance')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
-                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">Present Students</span> <span className="font-medium">{selectedReport.presentStudents ?? selectedReport.studentPresent ?? 'N/A'}</span></div>
-                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">Absent Students</span> <span className="font-medium">{selectedReport.absentStudents ?? 'N/A'}</span></div>
-                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">Total Students</span> <span className="font-medium">{selectedReport.totalStudents ?? selectedReport.studentNum ?? 'N/A'}</span></div>
+                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('new_report_page.present_students')}</span> <span className="font-medium">{selectedReport.presentStudents ?? selectedReport.studentPresent ?? 'N/A'}</span></div>
+                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('new_report_page.absent_students')}</span> <span className="font-medium">{selectedReport.absentStudents ?? 'N/A'}</span></div>
+                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('reports_page.total_students')}</span> <span className="font-medium">{selectedReport.totalStudents ?? selectedReport.studentNum ?? 'N/A'}</span></div>
                 </div>
 
                 <Separator />
                 
                 <div>
-                    <h3 className="font-semibold text-lg mb-2">Inspector's Observation</h3>
+                    <h3 className="font-semibold text-lg mb-2">{t('reports_page.inspector_observation')}</h3>
                     <p className="text-sm text-foreground bg-muted p-4 rounded-md whitespace-pre-wrap">{selectedReport.observation}</p>
                 </div>
                 
                 {selectedReport.description && (
                   <div>
-                      <h3 className="font-semibold text-lg mb-2">Sanction Description</h3>
+                      <h3 className="font-semibold text-lg mb-2">{t('reports_page.sanction_description')}</h3>
                       <p className="text-sm text-foreground bg-muted p-4 rounded-md whitespace-pre-wrap">{selectedReport.description}</p>
                   </div>
                 )}
@@ -315,10 +319,10 @@ export default function ReportsPage() {
                   <>
                     <Separator />
                     <div>
-                        <h3 className="font-semibold text-lg mb-2">Timestamps</h3>
+                        <h3 className="font-semibold text-lg mb-2">{t('timestamps')}</h3>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-sm text-muted-foreground">
-                            <div><span className="font-semibold">Created:</span> {new Date(selectedReport.createdAt).toLocaleString()}</div>
-                            <div><span className="font-semibold">Last Updated:</span> {new Date(selectedReport.updatedAt).toLocaleString()}</div>
+                            <div><span className="font-semibold">{t('created_at')}:</span> {new Date(selectedReport.createdAt).toLocaleString()}</div>
+                            <div><span className="font-semibold">{t('updated_at')}:</span> {new Date(selectedReport.updatedAt).toLocaleString()}</div>
                         </div>
                     </div>
                   </>
@@ -332,5 +336,3 @@ export default function ReportsPage() {
     </AnimatedPage>
   );
 }
-
-    
