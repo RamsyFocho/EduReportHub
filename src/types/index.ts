@@ -1,4 +1,5 @@
 
+
 export interface User {
   id: string;
   username: string;
@@ -55,4 +56,8 @@ export interface Report {
         username: string;
         email: string;
     }
+    [key: string]: any; // Index signature for dynamic sorting
 }
+
+// Re-exporting from a dedicated types file for reports
+export type { SortConfig, Filters } from './reports';
