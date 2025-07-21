@@ -41,6 +41,7 @@ export const en = {
   male: 'Male',
   female: 'Female',
   other: 'Other',
+  optional: 'Optional',
   unknown_error: 'An unknown error occurred.',
   click_to_upload: 'Click to upload',
   or_drag_and_drop: 'or drag and drop',
@@ -169,6 +170,17 @@ export const en = {
     inspector_observation: "Inspector's Observation",
     sanction_description: 'Sanction Description',
     pagination_summary: 'Showing {{start}} to {{end}} of {{total}} reports.',
+    apply_sanction_title: 'Apply Sanction to Report #{{id}}',
+    apply_sanction_desc: 'Choose a sanction type and add an optional description.',
+    select_sanction_type: 'Select a sanction type',
+    sanction_desc_placeholder: 'Provide details for the sanction...',
+    submit_sanction: 'Submit Sanction'
+  },
+  sanctions: {
+    NONE: "None",
+    EXPLANATION_REQUEST: "Explanation Request",
+    WARNING_LETTER: "Warning Letter",
+    DISMISSAL: "Dismissal"
   },
   new_report_page: {
     title: 'Create New Report',

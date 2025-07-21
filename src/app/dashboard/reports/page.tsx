@@ -18,6 +18,7 @@ import ReportFilters from "@/components/dashboard/reports/ReportFilters";
 import ReportTable from "@/components/dashboard/reports/ReportTable";
 import ReportSummaryChart from "@/components/dashboard/reports/ReportSummaryChart";
 import { SortConfig, Filters } from "@/types/reports";
+import SanctionModal from "@/components/dashboard/reports/SanctionModal";
 
 export default function ReportsPage() {
   const [allReports, setAllReports] = useState<Report[]>([]);
@@ -38,6 +39,9 @@ export default function ReportsPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const [isSanctionModalOpen, setIsSanctionModalOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
   const { toast } = useToast();
   const { t } = useTranslation();
@@ -135,6 +139,34 @@ export default function ReportsPage() {
     return displayReports.slice(startIndex, endIndex);
   }, [displayReports, currentPage, itemsPerPage]);
 
+  const handleOpenSanctionModal = (report: Report) => {
+    setSelectedReport(report);
+    setIsSanctionModalOpen(true);
+  };
+
+  const handleCloseSanctionModal = () => {
+    setIsSanctionModalOpen(false);
+    setSelectedReport(null);
+  };
+
+  const handleSanctionSubmit = async (reportId: number, sanctionData: { sanctionType: string; description: string }) => {
+    try {
+      await api.put(`/api/reports/sanction/${reportId}`, sanctionData);
+      toast({
+        title: t('success'),
+        description: t('reports_page.sanction_update_success'),
+      });
+      handleCloseSanctionModal();
+      await fetchReports(); // Refetch data to show updated sanction
+    } catch (err: any) {
+      toast({
+        variant: 'destructive',
+        title: t('reports_page.sanction_update_failed'),
+        description: err.message || t('unknown_error'),
+      });
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -199,8 +231,18 @@ export default function ReportsPage() {
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
                 onPageChange={setCurrentPage}
+                onApplySanction={handleOpenSanctionModal}
             />
         </div>
+
+        {selectedReport && (
+            <SanctionModal
+                isOpen={isSanctionModalOpen}
+                onClose={handleCloseSanctionModal}
+                onSubmit={handleSanctionSubmit}
+                report={selectedReport}
+            />
+        )}
     </AnimatedPage>
   );
 }

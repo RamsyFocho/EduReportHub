@@ -14,9 +14,10 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUpDown, Eye } from "lucide-react";
+import { ArrowUpDown, Eye, ShieldCheck } from "lucide-react";
 import ReportDetailsDialog from "./ReportDetailsDialog";
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ReportTableProps {
   reports: Report[];
@@ -26,12 +27,15 @@ interface ReportTableProps {
   currentPage: number;
   itemsPerPage: number;
   onPageChange: (page: number) => void;
+  onApplySanction: (report: Report) => void;
 }
 
-export default function ReportTable({ reports, requestSort, sortConfig, totalReports, currentPage, itemsPerPage, onPageChange }: ReportTableProps) {
+export default function ReportTable({ reports, requestSort, sortConfig, totalReports, currentPage, itemsPerPage, onPageChange, onApplySanction }: ReportTableProps) {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const { t } = useTranslation();
-  
+  const { user } = useAuth();
+  const canApplySanction = user?.roles?.includes('ROLE_ADMIN') || user?.roles?.includes('ROLE_DIRECTOR');
+
   const totalPages = Math.ceil(totalReports / itemsPerPage);
 
   const getSortIndicator = (key: keyof Report) => {
@@ -43,10 +47,10 @@ export default function ReportTable({ reports, requestSort, sortConfig, totalRep
 
   const getSanctionVariant = (sanction: string | null): "default" | "destructive" | "secondary" | "outline" => {
     switch (sanction) {
-        case "WARNING":
-        case "SUSPENSION":
+        case "WARNING_LETTER":
+        case "DISMISSAL":
             return "destructive";
-        case "COMMENDATION":
+        case "EXPLANATION_REQUEST":
             return "default";
         case "NONE":
         case null:
@@ -106,6 +110,11 @@ export default function ReportTable({ reports, requestSort, sortConfig, totalRep
                     <Button variant="ghost" size="icon" onClick={() => setSelectedReport(report)}>
                       <Eye className="h-4 w-4" />
                     </Button>
+                    {canApplySanction && (
+                       <Button variant="ghost" size="icon" onClick={() => onApplySanction(report)}>
+                          <ShieldCheck className="h-4 w-4" />
+                       </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

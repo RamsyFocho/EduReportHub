@@ -41,6 +41,7 @@ export const fr = {
   male: 'Masculin',
   female: 'Féminin',
   other: 'Autre',
+  optional: 'Facultatif',
   unknown_error: 'Une erreur inconnue est survenue.',
   click_to_upload: 'Cliquez pour téléverser',
   or_drag_and_drop: 'ou glisser-déposer',
@@ -169,6 +170,17 @@ export const fr = {
     inspector_observation: 'Observation de l\'inspecteur',
     sanction_description: 'Description de la sanction',
     pagination_summary: 'Affichage de {{start}} à {{end}} sur {{total}} rapports.',
+    apply_sanction_title: 'Appliquer une sanction au rapport #{{id}}',
+    apply_sanction_desc: 'Choisissez un type de sanction et ajoutez une description facultative.',
+    select_sanction_type: 'Sélectionnez un type de sanction',
+    sanction_desc_placeholder: 'Fournissez des détails pour la sanction...',
+    submit_sanction: 'Soumettre la sanction'
+  },
+  sanctions: {
+    NONE: "Aucune",
+    EXPLANATION_REQUEST: "Demande d'explication",
+    WARNING_LETTER: "Lettre de mise en garde",
+    DISMISSAL: "Licenciement"
   },
   new_report_page: {
     title: 'Créer un nouveau rapport',
