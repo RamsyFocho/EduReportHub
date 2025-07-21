@@ -15,7 +15,7 @@ interface RecentReportsTableProps {
 }
 
 export default function RecentReportsTable({ data }: RecentReportsTableProps) {
-  const recentReports = data.slice(0, 5); // Display top 5 recent reports
+  const recentReports = data.slice(0, 5);
 
   return (
     <Table>

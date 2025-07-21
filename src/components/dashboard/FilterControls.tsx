@@ -7,8 +7,6 @@ import { Establishment } from "@/types";
 
 interface FilterControlsProps {
     establishments: Establishment[];
-    // onFilterChange is removed for now to simplify and fix the error.
-    // A more robust filtering implementation would be needed.
 }
 
 export default function FilterControls({ establishments }: FilterControlsProps) {
@@ -26,7 +24,6 @@ export default function FilterControls({ establishments }: FilterControlsProps) 
                     ))}
                 </SelectContent>
             </Select>
-            {/* The clear filters button is also simplified as it's not connected to state. */}
             <Button variant="outline">Clear Filters</Button>
         </div>
     );

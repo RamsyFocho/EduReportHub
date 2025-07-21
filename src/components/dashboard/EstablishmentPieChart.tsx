@@ -11,7 +11,6 @@ interface EstablishmentPieChartProps {
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 export default function EstablishmentPieChart({ data }: EstablishmentPieChartProps) {
-    // Group reports by establishment
     const establishmentData = data.reduce((acc, report) => {
         const estName = report.establishment?.name || 'Unknown';
         const existingEst = acc.find((item: any) => item.name === estName);

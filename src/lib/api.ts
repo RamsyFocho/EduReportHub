@@ -36,31 +36,29 @@ async function request(endpoint: string, options: RequestInit = {}) {
     const response = await fetch(url, config);
 
     if (!response.ok) {
-      // Attempt to parse error response, default to a generic message if parsing fails
-      const errorData = await response.json().catch(() => ({ 
-          message: `Request failed with status: ${response.status}` 
-      }));
-      // Throw a structured error with details from the server
-      throw new ApiError(errorData.message || 'An unknown error occurred.', errorData, response.status);
+      let errorMessage = `Request failed with status: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorMessage;
+         if (response.status === 403) {
+            errorMessage = errorData.message || "You do not have permission to access this resource.";
+        }
+      } catch (e) {
+        // Ignore if the response is not JSON
+      }
+      throw new Error(errorMessage);
     }
   
-    // Handle successful responses with no content
     if (response.status === 204) {
       return;
     }
     
-    // Handle successful responses with JSON content
     return response.json();
   } catch(error) {
     console.error("API Request Error:", error);
-    // Re-throw custom ApiError or create a new generic one
-    if (error instanceof ApiError) {
+    if (error instanceof Error) {
         throw error;
     }
-    if (error instanceof Error) {
-        throw new Error(`Network request failed: ${error.message}`);
-    }
-    // Fallback for unexpected errors
     throw new Error('An unknown network error occurred.');
   }
 }

@@ -9,7 +9,6 @@ interface ReportsLineChartProps {
 }
 
 export default function ReportsLineChart({ data }: ReportsLineChartProps) {
-    // Group reports by month
     const monthlyData = data.reduce((acc, report) => {
         const month = new Date(report.date).toLocaleString('default', { month: 'long' });
         const existingMonth = acc.find((item: any) => item.month === month);
