@@ -12,7 +12,8 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupLabel
+  SidebarGroupLabel,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,11 +37,18 @@ export function DashboardSidebar() {
   const router = useRouter();
   const isAdmin = user?.roles?.includes("ROLE_ADMIN");
   const isDirector = user?.roles?.includes("ROLE_DIRECTOR");
+  const { isMobile, setOpenMobile } = useSidebar();
 
   const handleLogout = () => {
     logout();
     router.push('/');
   };
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }
 
   const menuItems = [
     {
@@ -86,7 +94,7 @@ export function DashboardSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <Link href="/dashboard" className="flex items-center gap-2">
+        <Link href="/dashboard" className="flex items-center gap-2" onClick={handleLinkClick}>
             <Button variant="ghost" className="h-10 w-10 p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
                 <BookOpenCheck className="h-6 w-6" />
             </Button>
@@ -97,7 +105,7 @@ export function DashboardSidebar() {
         <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href}>
+              <Link href={item.href} onClick={handleLinkClick}>
                 <SidebarMenuButton
                   isActive={pathname === item.href}
                   icon={item.icon}
@@ -116,7 +124,7 @@ export function DashboardSidebar() {
                 <SidebarMenu>
                 {managementMenuItems.filter(item => user?.roles?.some(role => item.roles.includes(role))).map((item) => (
                     <SidebarMenuItem key={item.href}>
-                    <Link href={item.href}>
+                    <Link href={item.href} onClick={handleLinkClick}>
                         <SidebarMenuButton
                         isActive={pathname === item.href}
                         icon={item.icon}
@@ -137,7 +145,7 @@ export function DashboardSidebar() {
                 <SidebarMenu>
                 {adminMenuItems.filter(item => user?.roles?.some(role => item.roles.includes(role))).map((item) => (
                     <SidebarMenuItem key={item.href}>
-                    <Link href={item.href}>
+                    <Link href={item.href} onClick={handleLinkClick}>
                         <SidebarMenuButton
                         isActive={pathname === item.href}
                         icon={item.icon}

@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,14 +13,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-
-const barChartData = [
-  { establishment: "Springfield High", reports: 186 },
-  { establishment: "Shelbyville Elementary", reports: 305 },
-  { establishment: "Capital City Middle", reports: 237 },
-  { establishment: "North Haverbrook High", reports: 73 },
-  { establishment: "Ogdenville Prep", reports: 209 },
-]
+import { getReportsByEstablishment, getMonthlyReportTrends } from "@/services/api/dashboard";
+import { useToast } from "@/hooks/use-toast";
 
 const barChartConfig = {
   reports: {
@@ -27,15 +22,6 @@ const barChartConfig = {
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig
-
-const lineChartData = [
-  { month: "January", reports: 186 },
-  { month: "February", reports: 305 },
-  { month: "March", reports: 237 },
-  { month: "April", reports: 73 },
-  { month: "May", reports: 209 },
-  { month: "June", reports: 214 },
-]
 
 const lineChartConfig = {
   reports: {
@@ -48,9 +34,34 @@ const lineChartConfig = {
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
+  const { toast } = useToast();
   const isAdmin = user?.roles?.includes("ROLE_ADMIN");
   const isDirector = user?.roles?.includes("ROLE_DIRECTOR");
   const isInspector = user?.roles?.includes("ROLE_INSPECTOR");
+
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [barChartData, setBarChartData] = useState([]);
+  const [lineChartData, setLineChartData] = useState([]);
+
+  useEffect(() => {
+    async function fetchChartData() {
+        try {
+            setStatsLoading(true);
+            const [establishmentData, trendsData] = await Promise.all([
+                getReportsByEstablishment(),
+                getMonthlyReportTrends()
+            ]);
+            setBarChartData(establishmentData);
+            setLineChartData(trendsData);
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Failed to load dashboard data.' });
+        } finally {
+            setStatsLoading(false);
+        }
+    }
+    fetchChartData();
+  }, [toast]);
+
 
   const stats = [
     {
@@ -133,14 +144,16 @@ export default function DashboardPage() {
                         <CardTitle>{t('dashboard.reports_by_establishment')}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                         <ChartContainer config={barChartConfig} className="h-[250px] w-full">
-                            <BarChart accessibilityLayer data={barChartData}>
-                                <CartesianGrid vertical={false} />
-                                <XAxis dataKey="establishment" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={(value) => value.slice(0, 3)} />
-                                <ChartTooltip content={<ChartTooltipContent />} />
-                                <Bar dataKey="reports" fill="var(--color-reports)" radius={4} />
-                            </BarChart>
-                        </ChartContainer>
+                         {statsLoading ? <Skeleton className="h-[250px] w-full" /> : (
+                            <ChartContainer config={barChartConfig} className="h-[250px] w-full">
+                                <BarChart accessibilityLayer data={barChartData}>
+                                    <CartesianGrid vertical={false} />
+                                    <XAxis dataKey="establishment" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={(value) => value.slice(0, 3)} />
+                                    <ChartTooltip content={<ChartTooltipContent />} />
+                                    <Bar dataKey="reports" fill="var(--color-reports)" radius={4} />
+                                </BarChart>
+                            </ChartContainer>
+                         )}
                     </CardContent>
                 </Card>
                  <Card>
@@ -148,14 +161,16 @@ export default function DashboardPage() {
                         <CardTitle>{t('dashboard.monthly_report_trends')}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <ChartContainer config={lineChartConfig} className="h-[250px] w-full">
-                            <LineChart accessibilityLayer data={lineChartData} margin={{ left: 12, right: 12 }}>
-                                <CartesianGrid vertical={false} />
-                                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => value.slice(0, 3)} />
-                                <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
-                                <Line dataKey="reports" type="natural" stroke="var(--color-reports)" strokeWidth={2} dot={false} />
-                            </LineChart>
-                        </ChartContainer>
+                        {statsLoading ? <Skeleton className="h-[250px] w-full" /> : (
+                            <ChartContainer config={lineChartConfig} className="h-[250px] w-full">
+                                <LineChart accessibilityLayer data={lineChartData} margin={{ left: 12, right: 12 }}>
+                                    <CartesianGrid vertical={false} />
+                                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => value.slice(0, 3)} />
+                                    <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
+                                    <Line dataKey="reports" type="natural" stroke="var(--color-reports)" strokeWidth={2} dot={false} />
+                                </LineChart>
+                            </ChartContainer>
+                        )}
                     </CardContent>
                 </Card>
             </div>
