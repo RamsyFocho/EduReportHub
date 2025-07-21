@@ -183,7 +183,7 @@ export default function ReportsPage() {
             <div className="relative flex-grow w-full">
               <Input 
                   type="search" 
-                  placeholder={t('reports_page.search_placeholder', { type: searchType })}
+                  placeholder={t('reports_page.search_placeholder', { type: t(searchType) })}
                   className="w-full"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
