@@ -26,14 +26,13 @@ import { Establishment, Teacher } from '@/types';
 
 const reportSchema = z.object({
   establishmentName: z.string().nonempty({ message: 'Establishment is required.' }),
-  teacherLastName: z.string().nonempty({ message: 'Teacher is required.' }),
+  teacherFullName: z.string().nonempty({ message: 'Teacher is required.' }),
   className: z.string().nonempty({ message: 'Class name is required.' }),
   courseTitle: z.string().nonempty({ message: 'Course title is required.' }),
   date: z.date({ required_error: 'A date is required.' }),
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
   endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
-  presentStudents: z.coerce.number().min(0),
-  absentStudents: z.coerce.number().min(0),
+  absentStudents: z.coerce.number().min(0, 'Absent students cannot be negative.'),
   observation: z.string().nonempty({ message: 'Observation is required.' }),
 });
 
@@ -66,22 +65,27 @@ export default function NewReportPage() {
     defaultValues: {
         startTime: "08:00",
         endTime: "09:00",
-        presentStudents: 0,
-        absentStudents: 0
+        absentStudents: 0,
     }
   });
 
   async function onSubmit(values: z.infer<typeof reportSchema>) {
     setIsLoading(true);
+    
+    const [firstName, ...lastNameParts] = values.teacherFullName.split(' ');
+    const lastName = lastNameParts.join(' ');
+
     const payload = {
       establishment: { name: values.establishmentName },
-      teacher: { lastName: values.teacherLastName },
+      teacher: { 
+        firstName: firstName,
+        lastName: lastName
+      },
       className: values.className,
       courseTitle: values.courseTitle,
       date: format(values.date, 'yyyy-MM-dd'),
       startTime: `${values.startTime}:00`,
       endTime: `${values.endTime}:00`,
-      presentStudents: values.presentStudents,
       absentStudents: values.absentStudents,
       observation: values.observation,
       sanctionType: "NONE",
@@ -129,7 +133,7 @@ export default function NewReportPage() {
                 />
                 <FormField
                   control={form.control}
-                  name="teacherLastName"
+                  name="teacherFullName"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t('teacher')}</FormLabel>
@@ -138,7 +142,7 @@ export default function NewReportPage() {
                           <SelectTrigger><SelectValue placeholder={t('new_report_page.select_teacher')} /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                           {teachers.map(t => <SelectItem key={t.id} value={t.lastName}>{t.firstName} {t.lastName}</SelectItem>)}
+                           {teachers.map(t => <SelectItem key={t.id} value={`${t.firstName} ${t.lastName}`}>{t.firstName} {t.lastName}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -174,8 +178,7 @@ export default function NewReportPage() {
                   <FormField control={form.control} name="startTime" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.start_time')}</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="endTime" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.end_time')}</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 </div>
-                 <div className="grid grid-cols-2 gap-4">
-                    <FormField control={form.control} name="presentStudents" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.present_students')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                 <div className="grid grid-cols-1">
                     <FormField control={form.control} name="absentStudents" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.absent_students')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 </div>
               </div>
