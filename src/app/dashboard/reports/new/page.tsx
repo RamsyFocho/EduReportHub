@@ -12,6 +12,7 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { AnimatedPage } from '@/components/shared/AnimatedPage';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,6 +41,7 @@ export default function NewReportPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -70,12 +72,18 @@ export default function NewReportPage() {
   });
 
   async function onSubmit(values: z.infer<typeof reportSchema>) {
+    if (!user?.email) {
+      toast({ variant: 'destructive', title: t('error'), description: 'User email not found. Please log in again.' });
+      return;
+    }
+    
     setIsLoading(true);
     
     const [firstName, ...lastNameParts] = values.teacherFullName.split(' ');
     const lastName = lastNameParts.join(' ');
 
     const payload = {
+      userEmail: user.email,
       establishment: { name: values.establishmentName },
       teacher: { 
         firstName: firstName,
