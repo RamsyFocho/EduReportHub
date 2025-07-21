@@ -1,209 +1,161 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { useTranslation } from "@/hooks/useTranslation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis, Line, LineChart } from "recharts"
-import { FileText, Building2, Users, ShieldCheck } from "lucide-react";
-import { AnimatedPage } from "@/components/shared/AnimatedPage";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
-import { getReportsByEstablishment, getMonthlyReportTrends } from "@/services/api/dashboard";
-import { useToast } from "@/hooks/use-toast";
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
-const barChartConfig = {
-  reports: {
-    label: "Reports",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig
+// Assumed API service and child components are available for import.
+// In a real Next.js app, these would likely be in '@/services/api' and '@/components/dashboard/*'
+import { api } from '@/lib/api'; // Assuming a similar structure to the project
+import FilterControls from '@/components/dashboard/FilterControls';
+import KPI_Card from '@/components/dashboard/KPI_Card';
+import ReportsLineChart from '@/components/dashboard/ReportsLineChart';
+import EstablishmentPieChart from '@/components/dashboard/EstablishmentPieChart';
+import RecentReportsTable from '@/components/dashboard/RecentReportsTable';
 
-const lineChartConfig = {
-  reports: {
-    label: "Reports",
-    color: "hsl(var(--chart-2))",
-  },
-} satisfies ChartConfig
-
-
+/**
+ * The main component for the data analytics dashboard.
+ * It orchestrates data fetching, state management, and the layout of various data visualization components.
+ */
 export default function DashboardPage() {
-  const { user, loading } = useAuth();
-  const { t } = useTranslation();
-  const { toast } = useToast();
-  const isAdmin = user?.roles?.includes("ROLE_ADMIN");
-  const isDirector = user?.roles?.includes("ROLE_DIRECTOR");
-  const isInspector = user?.roles?.includes("ROLE_INSPECTOR");
+  // State for holding raw data from the API
+  const [reports, setReports] = useState([]);
+  const [establishments, setEstablishments] = useState([]);
 
-  const [statsLoading, setStatsLoading] = useState(true);
-  const [barChartData, setBarChartData] = useState([]);
-  const [lineChartData, setLineChartData] = useState([]);
+  // State for managing UI and interactivity
+  const [filters, setFilters] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Initial data fetch for establishments and all reports on component mount.
   useEffect(() => {
-    async function fetchChartData() {
-        try {
-            setStatsLoading(true);
-            const [establishmentData, trendsData] = await Promise.all([
-                getReportsByEstablishment(),
-                getMonthlyReportTrends()
-            ]);
-            setBarChartData(establishmentData);
-            setLineChartData(trendsData);
-        } catch (error) {
-            toast({ variant: 'destructive', title: 'Failed to load dashboard data.' });
-        } finally {
-            setStatsLoading(false);
-        }
+    const fetchInitialData = async () => {
+      try {
+        setIsLoading(true);
+        // Using Promise.all to fetch data in parallel for efficiency.
+        const [reportsData, establishmentsData] = await Promise.all([
+          api.get('/api/reports'), // Assuming this gets all reports
+          api.get('/api/establishments'), // Assuming this gets all establishments
+        ]);
+
+        // Note: The backend returns a paginated object. We extract the 'content'.
+        setReports(reportsData.content || []);
+        setEstablishments(establishmentsData || []);
+        setError(null);
+      } catch (err: any) {
+        console.error("Failed to fetch initial dashboard data:", err);
+        setError("Could not load dashboard data. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, []); // Empty dependency array ensures this runs only once on mount.
+
+  // Effect to re-fetch reports when filters change.
+  useEffect(() => {
+    // We don't want to run this on the initial render, only on subsequent filter changes.
+    // A check to see if filters object is not empty.
+    if (Object.keys(filters).length === 0) {
+      return;
     }
-    fetchChartData();
-  }, [toast]);
 
+    const fetchFilteredData = async () => {
+      try {
+        setIsLoading(true);
+        // We assume the backend has a single endpoint for filtering
+        // and we pass the entire filters object to it.
+        const filteredReports = await api.get(`/api/reports/search/complex`, { params: filters }); // Hypothetical complex search endpoint
+        setReports(filteredReports.content || []);
+        setError(null);
+      } catch (err: any) {
+        console.error("Failed to fetch filtered reports:", err);
+        setError("Could not apply filters. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const stats = [
-    {
-      title: "dashboard.total_reports",
-      value: "1,234",
-      description: "dashboard.reports_last_month",
-      icon: <FileText className="h-4 w-4 text-muted-foreground" />,
-      roles: ["ROLE_ADMIN", "ROLE_DIRECTOR"]
-    },
-    {
-      title: "dashboard.my_reports",
-      value: "82",
-      description: "dashboard.reports_this_week",
-      icon: <FileText className="h-4 w-4 text-muted-foreground" />,
-      roles: ["ROLE_INSPECTOR"]
-    },
-    {
-      title: "dashboard.establishments",
-      value: "57",
-      description: "dashboard.establishments_since_last_week",
-      icon: <Building2 className="h-4 w-4 text-muted-foreground" />,
-      roles: ["ROLE_ADMIN", "ROLE_DIRECTOR"]
-    },
-    {
-      title: "dashboard.active_teachers",
-      value: "789",
-      description: "dashboard.teachers_across_establishments",
-      icon: <Users className="h-4 w-4 text-muted-foreground" />,
-      roles: ["ROLE_ADMIN", "ROLE_DIRECTOR"]
-    },
-     {
-      title: "dashboard.my_sanctions",
-      value: "5",
-      description: "dashboard.sanctions_issued",
-      icon: <ShieldCheck className="h-4 w-4 text-muted-foreground" />,
-      roles: ["ROLE_INSPECTOR"]
-    },
-  ];
+    fetchFilteredData();
+  }, [filters]); // This effect depends on the 'filters' state.
 
-  const userStats = stats.filter(stat => user?.roles?.some(role => stat.roles.includes(role)));
+  // --- Memoized Calculations for Performance ---
+
+  // Memoize the total number of reports to avoid recalculating on every render.
+  const totalReports = useMemo(() => reports.length, [reports]);
+
+  // Memoize the calculation of unique sanctions.
+  const totalUniqueSanctions = useMemo(() => {
+    // Using a Set is an efficient way to count unique values.
+    const sanctions = new Set(
+      reports
+        .map((report: any) => report.sanctionType)
+        .filter(sanction => sanction && sanction !== 'NONE') // Filter out null/NONE values
+    );
+    return sanctions.size;
+  }, [reports]);
+
+  // Handler function passed to FilterControls to update the filters state.
+  // useCallback ensures this function is not recreated on every render.
+  const handleFilterChange = useCallback((newFilters: any) => {
+    setFilters(newFilters);
+  }, []);
+
+  // --- Render Logic ---
+
+  if (isLoading) {
+    // A simple loading indicator. In a real app, this would be a more sophisticated skeleton loader.
+    return (
+        <div className="flex items-center justify-center h-screen">
+            <p className="text-xl text-muted-foreground">Loading Dashboard...</p>
+        </div>
+    );
+  }
+
+  if (error) {
+    // A simple error message display.
+    return (
+        <div className="flex items-center justify-center h-screen text-destructive">
+            <p>{error}</p>
+        </div>
+    );
+  }
 
   return (
-    <AnimatedPage>
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold font-headline">{t('dashboard.title')}</h1>
-        <p className="text-muted-foreground">{t('dashboard.welcome_back', { email: user?.email })}</p>
-        
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {loading ? (
-             Array.from({ length: 3 }).map((_, i) => (
-                <Card key={i}>
-                    <CardHeader><Skeleton className="h-5 w-2/4" /></CardHeader>
-                    <CardContent className="space-y-2">
-                        <Skeleton className="h-7 w-1/3" />
-                        <Skeleton className="h-4 w-3/4" />
-                    </CardContent>
-                </Card>
-             ))
-          ) : (
-            userStats.map((stat, index) => (
-              <Card key={index}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">{t(stat.title)}</CardTitle>
-                      {stat.icon}
-                  </CardHeader>
-                  <CardContent>
-                      <div className="text-2xl font-bold">{stat.value}</div>
-                      <p className="text-xs text-muted-foreground">{t(stat.description)}</p>
-                  </CardContent>
-              </Card>
-            ))
-          )}
+    <div className="p-4 md:p-8 space-y-8">
+      <h1 className="text-3xl font-bold font-headline">Analytics Dashboard</h1>
+
+      {/* Filter controls are placed at the top for easy access. */}
+      <FilterControls
+        establishments={establishments}
+        onFilterChange={handleFilterChange}
+      />
+
+      {/* A grid for displaying high-level Key Performance Indicators (KPIs). */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPI_Card title="Total Reports" value={totalReports} />
+        <KPI_Card title="Active Establishments" value={establishments.length} />
+        <KPI_Card title="Unique Sanctions Issued" value={totalUniqueSanctions} />
+        <KPI_Card title="Reports this Month" value="--" /> {/* Placeholder */}
+      </div>
+
+      {/* A grid for the main chart visualizations. */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* The line chart takes up more horizontal space on larger screens. */}
+        <div className="lg:col-span-2">
+          <ReportsLineChart data={reports} />
         </div>
-
-        <div className="mt-8 space-y-8">
-            <h2 className="text-2xl font-semibold font-headline">{t('dashboard.analytics_overview')}</h2>
-            <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('dashboard.reports_by_establishment')}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                         {statsLoading ? <Skeleton className="h-[250px] w-full" /> : (
-                            <ChartContainer config={barChartConfig} className="h-[250px] w-full">
-                                <BarChart accessibilityLayer data={barChartData}>
-                                    <CartesianGrid vertical={false} />
-                                    <XAxis dataKey="establishment" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={(value) => value.slice(0, 3)} />
-                                    <ChartTooltip content={<ChartTooltipContent />} />
-                                    <Bar dataKey="reports" fill="var(--color-reports)" radius={4} />
-                                </BarChart>
-                            </ChartContainer>
-                         )}
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>{t('dashboard.monthly_report_trends')}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {statsLoading ? <Skeleton className="h-[250px] w-full" /> : (
-                            <ChartContainer config={lineChartConfig} className="h-[250px] w-full">
-                                <LineChart accessibilityLayer data={lineChartData} margin={{ left: 12, right: 12 }}>
-                                    <CartesianGrid vertical={false} />
-                                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => value.slice(0, 3)} />
-                                    <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
-                                    <Line dataKey="reports" type="natural" stroke="var(--color-reports)" strokeWidth={2} dot={false} />
-                                </LineChart>
-                            </ChartContainer>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
-        </div>
-
-        <Separator />
-
-        <div className="mt-8">
-          <h2 className="text-2xl font-semibold font-headline mb-4">{t('dashboard.quick_actions')}</h2>
-          <div className="flex flex-wrap gap-4">
-             {isInspector && (
-                <Button asChild>
-                    <Link href="/dashboard/reports/new">{t('dashboard.create_new_report')}</Link>
-                </Button>
-             )}
-             {(isAdmin || isDirector) && (
-                <>
-                    <Button asChild variant="secondary">
-                        <Link href="/dashboard/upload-teachers">{t('dashboard.upload_teachers')}</Link>
-                    </Button>
-                    <Button asChild variant="secondary">
-                        <Link href="/dashboard/establishments">{t('dashboard.manage_establishments')}</Link>
-                    </Button>
-                </>
-             )}
-             {isAdmin && (
-                <Button asChild variant="secondary">
-                    <Link href="/dashboard/register-user">{t('dashboard.register_new_user')}</Link>
-                </Button>
-             )}
-          </div>
+        {/* The pie chart for establishment breakdown. */}
+        <div>
+          <EstablishmentPieChart data={reports} />
         </div>
       </div>
-    </AnimatedPage>
+
+      {/* A section for displaying a table of the most recent reports. */}
+      <div>
+        <h2 className="text-2xl font-semibold mb-4 font-headline">Recent Reports</h2>
+        <RecentReportsTable data={reports} />
+      </div>
+    </div>
   );
 }
