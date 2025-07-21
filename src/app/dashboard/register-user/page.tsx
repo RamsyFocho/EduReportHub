@@ -17,13 +17,21 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PasswordStrengthIndicator } from '@/components/shared/PasswordStrengthIndicator';
 
 const roles = ['ROLE_INSPECTOR', 'ROLE_ADMIN', 'ROLE_DIRECTOR'];
+
+const passwordValidation = z.string()
+  .min(8, 'Password must be at least 8 characters.')
+  .regex(/[a-z]/, 'Password must contain at least one lowercase letter.')
+  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter.')
+  .regex(/[0-9]/, 'Password must contain at least one number.')
+  .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one special character.');
 
 const registerSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters.'),
   email: z.string().email('Invalid email address.'),
-  password: z.string().min(8, 'Password must be at least 8 characters.'),
+  password: passwordValidation,
   phoneNumber: z.string().optional(),
   address: z.string().optional(),
   role: z.string().refine(value => roles.includes(value), {
@@ -49,7 +57,10 @@ export default function RegisterUserPage() {
       address: '',
       role: 'ROLE_INSPECTOR',
     },
+    mode: 'onChange'
   });
+
+  const password = form.watch('password');
 
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     setIsSubmitting(true);
@@ -83,7 +94,20 @@ export default function RegisterUserPage() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <FormField control={form.control} name="username" render={({ field }) => ( <FormItem><FormLabel>{t('username')}</FormLabel><FormControl><Input placeholder="newuser" {...field} /></FormControl><FormMessage /></FormItem> )} />
                   <FormField control={form.control} name="email" render={({ field }) => ( <FormItem><FormLabel>{t('email')}</FormLabel><FormControl><Input type="email" placeholder="user@example.com" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                  <FormField control={form.control} name="password" render={({ field }) => ( <FormItem><FormLabel>{t('password')}</FormLabel><FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                  <div className="md:col-span-2">
+                    <FormField 
+                        control={form.control} 
+                        name="password" 
+                        render={({ field }) => ( 
+                            <FormItem>
+                                <FormLabel>{t('password')}</FormLabel>
+                                <FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem> 
+                        )} 
+                    />
+                    {password && <PasswordStrengthIndicator password={password} />}
+                  </div>
                    <FormField
                     control={form.control}
                     name="role"

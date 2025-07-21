@@ -23,13 +23,23 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Separator } from '@/components/ui/separator';
+import { PasswordStrengthIndicator } from '@/components/shared/PasswordStrengthIndicator';
+
+const passwordValidation = z.string()
+  .min(8, 'Password must be at least 8 characters.')
+  .regex(/[a-z]/, 'Password must contain at least one lowercase letter.')
+  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter.')
+  .regex(/[0-9]/, 'Password must contain at least one number.')
+  .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one special character.');
 
 const profileSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters.'),
   email: z.string().email('Invalid email address.'),
   phoneNumber: z.string().optional(),
   address: z.string().optional(),
-  newPassword: z.string().min(8, 'Password must be at least 8 characters.').optional().or(z.literal('')),
+  newPassword: z.string().optional().or(z.literal('')).refine(val => !val || passwordValidation.safeParse(val).success, {
+    message: "Password does not meet the strength requirements.",
+  }),
   confirmPassword: z.string().optional().or(z.literal('')),
 }).refine(data => {
     if (data.newPassword && data.newPassword !== data.confirmPassword) {
@@ -59,7 +69,10 @@ export default function ProfilePage() {
       newPassword: '',
       confirmPassword: ''
     },
+    mode: 'onChange'
   });
+
+  const newPassword = form.watch('newPassword');
 
   useEffect(() => {
     if (user) {
@@ -128,7 +141,18 @@ export default function ProfilePage() {
                     <AccordionTrigger>{t('profile_page.change_password')}</AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-6 pt-4">
-                        <FormField control={form.control} name="newPassword" render={({ field }) => ( <FormItem><FormLabel>{t('profile_page.new_password')}</FormLabel><FormControl><Input type="password" placeholder={t('profile_page.enter_new_password')} {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField 
+                            control={form.control} 
+                            name="newPassword" 
+                            render={({ field }) => ( 
+                                <FormItem>
+                                    <FormLabel>{t('profile_page.new_password')}</FormLabel>
+                                    <FormControl><Input type="password" placeholder={t('profile_page.enter_new_password')} {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem> 
+                            )} 
+                        />
+                        {newPassword && <PasswordStrengthIndicator password={newPassword || ''} />}
                         <FormField control={form.control} name="confirmPassword" render={({ field }) => ( <FormItem><FormLabel>{t('profile_page.confirm_new_password')}</FormLabel><FormControl><Input type="password" placeholder={t('profile_page.confirm_new_password_placeholder')} {...field} /></FormControl><FormMessage /></FormItem> )} />
                       </div>
                     </AccordionContent>
