@@ -32,7 +32,7 @@ const reportSchema = z.object({
   date: z.date({ required_error: 'A date is required.' }),
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
   endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
-  absentStudents: z.coerce.number().min(0, 'Absent students cannot be negative.'),
+  presentStudents: z.coerce.number().min(0, 'Present students cannot be negative.'),
   observation: z.string().nonempty({ message: 'Observation is required.' }),
 });
 
@@ -65,7 +65,7 @@ export default function NewReportPage() {
     defaultValues: {
         startTime: "08:00",
         endTime: "09:00",
-        absentStudents: 0,
+        presentStudents: 0,
     }
   });
 
@@ -86,7 +86,7 @@ export default function NewReportPage() {
       date: format(values.date, 'yyyy-MM-dd'),
       startTime: `${values.startTime}:00`,
       endTime: `${values.endTime}:00`,
-      absentStudents: values.absentStudents,
+      studentPresent: values.presentStudents,
       observation: values.observation,
       sanctionType: "NONE",
     };
@@ -179,7 +179,7 @@ export default function NewReportPage() {
                   <FormField control={form.control} name="endTime" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.end_time')}</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 </div>
                  <div className="grid grid-cols-1">
-                    <FormField control={form.control} name="absentStudents" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.absent_students')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="presentStudents" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.present_students')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 </div>
               </div>
                <FormField control={form.control} name="observation" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.observation')}</FormLabel><FormControl><Textarea placeholder={t('new_report_page.observation_placeholder')} className="resize-y min-h-[100px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
