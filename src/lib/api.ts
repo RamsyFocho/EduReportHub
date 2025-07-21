@@ -1,3 +1,4 @@
+
 import { getToken } from './auth';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
@@ -36,6 +37,12 @@ async function request(endpoint: string, options: RequestInit = {}) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred' }));
+      
+      // Specifically handle 403 Forbidden errors to show a clear message
+      if (response.status === 403) {
+          throw new ApiError(errorData.message || 'You do not have permission to perform this action.', errorData, response.status);
+      }
+      
       throw new ApiError(errorData.message || `HTTP error! status: ${response.status}`, errorData, response.status);
     }
   
