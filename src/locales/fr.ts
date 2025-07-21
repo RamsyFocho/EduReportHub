@@ -166,7 +166,7 @@ export const fr = {
     details_title: 'Détails du rapport (ID: {{id}})',
     details_description: 'Détails complets de l\'inspection menée le {{date}}.',
     sanction_date: 'Date de la sanction',
-    total_students: 'Total des élèves en classe',
+    total_students: 'Total des élèves',
     inspector_observation: 'Observation de l\'inspecteur',
     sanction_description: 'Description de la sanction',
     pagination_summary: 'Affichage de {{start}} à {{end}} sur {{total}} rapports.',

@@ -166,7 +166,7 @@ export const en = {
     details_title: 'Report Details (ID: {{id}})',
     details_description: 'Full details for the inspection conducted on {{date}}.',
     sanction_date: 'Sanction Date',
-    total_students: 'Total Students in Class',
+    total_students: 'Total Students',
     inspector_observation: "Inspector's Observation",
     sanction_description: 'Sanction Description',
     pagination_summary: 'Showing {{start}} to {{end}} of {{total}} reports.',

@@ -19,8 +19,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Establishment, Teacher } from '@/types';
@@ -30,11 +28,19 @@ const reportSchema = z.object({
   teacherFullName: z.string().nonempty({ message: 'Teacher is required.' }),
   className: z.string().nonempty({ message: 'Class name is required.' }),
   courseTitle: z.string().nonempty({ message: 'Course title is required.' }),
-  date: z.date({ required_error: 'A date is required.' }),
+  date: z.date(),
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
   endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
+  studentNum: z.coerce.number().min(0, 'Total students cannot be negative.'),
   studentPresent: z.coerce.number().min(0, 'Present students cannot be negative.'),
   observation: z.string().nonempty({ message: 'Observation is required.' }),
+}).refine(data => {
+    const start = parseInt(data.startTime.replace(':', ''), 10);
+    const end = parseInt(data.endTime.replace(':', ''), 10);
+    return end > start;
+}, {
+    message: 'End time must be after start time.',
+    path: ['endTime'],
 });
 
 export default function NewReportPage() {
@@ -65,8 +71,10 @@ export default function NewReportPage() {
   const form = useForm<z.infer<typeof reportSchema>>({
     resolver: zodResolver(reportSchema),
     defaultValues: {
+        date: new Date(),
         startTime: "08:00",
         endTime: "09:00",
+        studentNum: 0,
         studentPresent: 0,
     }
   });
@@ -94,6 +102,7 @@ export default function NewReportPage() {
       date: format(values.date, 'yyyy-MM-dd'),
       startTime: `${values.startTime}:00`,
       endTime: `${values.endTime}:00`,
+      studentNum: values.studentNum,
       studentPresent: values.studentPresent,
       observation: values.observation,
       sanctionType: "NONE",
@@ -159,34 +168,28 @@ export default function NewReportPage() {
                 />
                 <FormField control={form.control} name="className" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.class_name')}</FormLabel><FormControl><Input placeholder="e.g., 10A" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="courseTitle" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.course_title')}</FormLabel><FormControl><Input placeholder="e.g., Mathematics" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                
                 <FormField
-                  control={form.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>{t('date')}</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
-                              {field.value ? format(field.value, 'PPP') : <span>{t('new_report_page.pick_date')}</span>}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date('1900-01-01')} initialFocus />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                    control={form.control}
+                    name="date"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                            <FormLabel>{t('date')}</FormLabel>
+                            <div className={cn("flex h-10 w-full items-center justify-between rounded-md border border-input bg-muted px-3 py-2 text-sm")}>
+                                {format(field.value, 'PPP')}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </div>
+                            <FormMessage />
+                        </FormItem>
+                    )}
                 />
+
                 <div className="grid grid-cols-2 gap-4">
                   <FormField control={form.control} name="startTime" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.start_time')}</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="endTime" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.end_time')}</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 </div>
-                 <div className="grid grid-cols-1">
+                 <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="studentNum" render={({ field }) => (<FormItem><FormLabel>{t('reports_page.total_students')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="studentPresent" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.present_students')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 </div>
               </div>
