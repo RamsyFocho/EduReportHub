@@ -79,11 +79,11 @@ export default function ReportsPage() {
         setReports([]);
         console.warn("API response was not a recognized format.", data);
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: t('reports_page.fetch_failed_title'),
-        description: error instanceof Error ? error.message : t('reports_page.fetch_failed_desc'),
+        description: error.message || t('reports_page.fetch_failed_desc'),
       });
       setReports([]);
     } finally {
@@ -126,11 +126,11 @@ export default function ReportsPage() {
       } else {
           fetchReports();
       }
-    } catch (error) {
+    } catch (error: any) {
        toast({
         variant: "destructive",
         title: t('update_failed'),
-        description: error instanceof Error ? error.message : t('reports_page.sanction_update_failed'),
+        description: error.message || t('reports_page.sanction_update_failed'),
       });
     } finally {
         setIsUpdating(false);

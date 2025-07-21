@@ -36,32 +36,33 @@ async function request(endpoint: string, options: RequestInit = {}) {
     const response = await fetch(url, config);
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred' }));
-      
-      // Specifically handle 403 Forbidden errors to show a clear message
-      if (response.status === 403) {
-          throw new ApiError(errorData.message || 'You do not have permission to perform this action.', errorData, response.status);
-      }
-      
-      throw new ApiError(errorData.message || `HTTP error! status: ${response.status}`, errorData, response.status);
+      // Attempt to parse error response, default to a generic message if parsing fails
+      const errorData = await response.json().catch(() => ({ 
+          message: `Request failed with status: ${response.status}` 
+      }));
+      // Throw a structured error with details from the server
+      throw new ApiError(errorData.message || 'An unknown error occurred.', errorData, response.status);
     }
   
+    // Handle successful responses with no content
     if (response.status === 204) {
       return;
     }
     
+    // Handle successful responses with JSON content
     return response.json();
   } catch(error) {
-    console.error("Fetch error:", error);
+    console.error("API Request Error:", error);
+    // Re-throw custom ApiError or create a new generic one
     if (error instanceof ApiError) {
-        throw error; // Re-throw the custom error with full details
+        throw error;
     }
     if (error instanceof Error) {
-        throw new Error(`Failed to fetch: ${error.message}`);
+        throw new Error(`Network request failed: ${error.message}`);
     }
-    throw new Error('Failed to fetch due to an unknown network error.');
+    // Fallback for unexpected errors
+    throw new Error('An unknown network error occurred.');
   }
-
 }
 
 export const api = {
@@ -69,15 +70,7 @@ export const api = {
   post: (endpoint: string, body: any, options?: RequestInit) => request(endpoint, { ...options, method: 'POST', body: JSON.stringify(body) }),
   put: (endpoint: string, body: any, options?: RequestInit) => request(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) }),
   delete: (endpoint: string, options?: RequestInit) => request(endpoint, { ...options, method: 'DELETE' }),
-  postFormData: async (endpoint: string, formData: FormData) => {
-    try {
-      return await request(endpoint, { method: 'POST', body: formData });
-    } catch(error) {
-        console.error("Fetch error (form-data):", error);
-        if (error instanceof Error) {
-            throw new Error(`Failed to fetch: ${error.message}`);
-        }
-        throw new Error('Failed to fetch due to an unknown network error.');
-    }
+  postFormData: (endpoint: string, formData: FormData, options?: RequestInit) => {
+    return request(endpoint, { ...options, method: 'POST', body: formData });
   }
 };

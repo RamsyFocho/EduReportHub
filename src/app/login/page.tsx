@@ -65,11 +65,11 @@ export default function LoginPage() {
     try {
       await login(values.email, values.password);
       // The useEffect hook will handle the redirect upon state change.
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: 'destructive',
         title: t('login_page.login_failed_title'),
-        description: error instanceof Error ? error.message : t('login_page.login_failed_desc'),
+        description: error.message || t('login_page.login_failed_desc'),
       });
     } finally {
       setIsSubmitting(false);

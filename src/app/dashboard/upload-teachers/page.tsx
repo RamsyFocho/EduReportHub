@@ -62,13 +62,7 @@ export default function UploadTeachersPage() {
       form.reset();
       setFileName('');
     } catch (error: any) {
-      let description = t('upload_teachers_page.failed_desc_generic');
-      if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
-          description = error.response.errors.join(', ');
-      } else if (error.message) {
-          description = error.message;
-      }
-      toast({ variant: 'destructive', title: t('upload_failed'), description });
+      toast({ variant: 'destructive', title: t('upload_failed'), description: error.message || t('upload_teachers_page.failed_desc_generic') });
     } finally {
       setIsSubmitting(false);
     }

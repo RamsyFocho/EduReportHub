@@ -76,19 +76,7 @@ export default function EstablishmentsPage() {
       form.reset();
       fetchEstablishments(); // Refresh the list
     } catch (error: any) {
-        if (error.status === 409) {
-          toast({ variant: 'destructive', title: t('creation_failed'), description: t('establishments_page.create_failed_conflict', { name: values.name }) });
-        } else {
-            let description = t('establishments_page.create_failed');
-            if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
-                description = error.response.errors.join(', ');
-            } else if (error.message) {
-                description = error.message;
-            } else if (error.response?.message) {
-                description = error.response.message;
-            }
-            toast({ variant: 'destructive', title: 'Error', description });
-        }
+      toast({ variant: 'destructive', title: t('creation_failed'), description: error.message || t('establishments_page.create_failed') });
     } finally {
       setIsSubmitting(false);
     }

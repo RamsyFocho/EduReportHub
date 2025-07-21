@@ -32,9 +32,9 @@ function VerificationContent() {
         await api.get(`/api/auth/verify?token=${token}`);
         setStatus('success');
         setMessage(t('verify_email_page.success_message'));
-      } catch (error) {
+      } catch (error: any) {
         setStatus('error');
-        setMessage(error instanceof Error ? error.message : t('verify_email_page.error_message'));
+        setMessage(error.message || t('verify_email_page.error_message'));
       }
     };
 

@@ -57,8 +57,8 @@ export default function TeachersPage() {
       setLoading(true);
       const data = await api.get('/api/teachers');
       setTeachers(data);
-    } catch (error) {
-      toast({ variant: 'destructive', title: t('teachers_page.fetch_failed_title'), description: t('teachers_page.fetch_failed_desc') });
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: t('teachers_page.fetch_failed_title'), description: error.message || t('teachers_page.fetch_failed_desc') });
     } finally {
       setLoading(false);
     }
@@ -77,13 +77,7 @@ export default function TeachersPage() {
       setEditingTeacher(null);
       fetchTeachers();
     } catch (error: any) {
-      let description = t('teachers_page.update_failed_desc_generic');
-      if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
-          description = error.response.errors.join(', ');
-      } else if (error.message) {
-          description = error.message;
-      }
-      toast({ variant: 'destructive', title: t('update_failed'), description });
+      toast({ variant: 'destructive', title: t('update_failed'), description: error.message || t('teachers_page.update_failed_desc_generic') });
     } finally {
       setIsSubmitting(false);
     }

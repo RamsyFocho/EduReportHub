@@ -54,8 +54,8 @@ export default function NewReportPage() {
         ]);
         setEstablishments(estData);
         setTeachers(teacherData || []);
-      } catch (error) {
-         toast({ variant: "destructive", title: t('new_report_page.load_failed_title'), description: t('new_report_page.load_failed_desc') });
+      } catch (error: any) {
+         toast({ variant: "destructive", title: t('new_report_page.load_failed_title'), description: error.message || t('new_report_page.load_failed_desc') });
       }
     };
     fetchData();
@@ -91,8 +91,8 @@ export default function NewReportPage() {
       await api.post('/api/reports', payload);
       toast({ title: t('success'), description: t('new_report_page.create_success') });
       router.push('/dashboard/reports');
-    } catch (error) {
-      toast({ variant: 'destructive', title: t('error'), description: error instanceof Error ? error.message : t('new_report_page.create_failed') });
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: t('error'), description: error.message || t('new_report_page.create_failed') });
     } finally {
       setIsLoading(false);
     }

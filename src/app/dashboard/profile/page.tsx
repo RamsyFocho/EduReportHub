@@ -93,15 +93,7 @@ export default function ProfilePage() {
       await fetchUser(); // Refresh user data in AuthContext
       form.reset({ ...form.getValues(), newPassword: '', confirmPassword: '' });
     } catch (error: any) {
-      let description = t('unknown_error');
-       if (error.status === 400 && error.message) {
-          description = error.message;
-       } else if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
-          description = error.response.errors.join(', ');
-      } else if (error.message) {
-          description = error.message;
-      }
-      toast({ variant: 'destructive', title: t('update_failed'), description });
+      toast({ variant: 'destructive', title: t('update_failed'), description: error.message || t('unknown_error') });
     } finally {
       setIsSubmitting(false);
     }
