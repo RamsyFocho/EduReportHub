@@ -51,6 +51,7 @@ export default function ReportsPage() {
       setIsLoading(true);
       setError(null);
       const data = await api.get("/api/reports");
+      console.log("Response from /api/reports:", data);
       const reports = (Array.isArray(data) ? data : data?.content) || [];
       setAllReports(reports);
     } catch (err: any) {
