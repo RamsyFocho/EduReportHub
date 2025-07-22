@@ -41,6 +41,9 @@ const reportSchema = z.object({
 }, {
     message: 'End time must be after start time.',
     path: ['endTime'],
+}).refine(data => data.studentPresent <= data.studentNum, {
+    message: 'Present students cannot exceed total students.',
+    path: ['studentPresent'],
 });
 
 export default function NewReportPage() {
@@ -91,12 +94,10 @@ export default function NewReportPage() {
     const lastName = lastNameParts.join(' ');
 
     const payload = {
-      email: user.email,
-      establishment: { name: values.establishmentName },
-      teacher: { 
-        firstName: firstName,
-        lastName: lastName
-      },
+      userEmail: user.email,
+      establishmentName: values.establishmentName,
+      teacherFirstName: firstName,
+      teacherLastName: lastName,
       className: values.className,
       courseTitle: values.courseTitle,
       date: format(values.date, 'yyyy-MM-dd'),
@@ -105,7 +106,6 @@ export default function NewReportPage() {
       studentNum: values.studentNum,
       studentPresent: values.studentPresent,
       observation: values.observation,
-      sanctionType: "NONE",
     };
 
     console.log('Report creation payload:', payload);
@@ -114,7 +114,7 @@ export default function NewReportPage() {
       await api.post('/api/reports', payload);
       toast({ title: t('success'), description: t('new_report_page.create_success') });
       router.push('/dashboard/reports');
-    } catch (error: any) {
+    } catch (error: any) => {
       toast({ variant: 'destructive', title: t('error'), description: error.message || t('new_report_page.create_failed') });
     } finally {
       setIsLoading(false);
