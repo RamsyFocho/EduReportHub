@@ -108,6 +108,8 @@ export default function NewReportPage() {
       sanctionType: "NONE",
     };
 
+    console.log('Report creation payload:', payload);
+
     try {
       await api.post('/api/reports', payload);
       toast({ title: t('success'), description: t('new_report_page.create_success') });
