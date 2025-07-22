@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import { Pie, PieChart, ResponsiveContainer, Tooltip, Cell } from 'recharts';
@@ -12,7 +13,7 @@ const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3
 
 export default function EstablishmentPieChart({ data }: EstablishmentPieChartProps) {
     const establishmentData = data.reduce((acc, report) => {
-        const estName = report.establishment?.name || 'Unknown';
+        const estName = report.establishmentName || 'Unknown';
         const existingEst = acc.find((item: any) => item.name === estName);
         if (existingEst) {
             existingEst.value++;
