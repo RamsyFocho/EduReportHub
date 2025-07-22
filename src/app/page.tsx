@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion'; // Import motion
+import { motion } from 'framer-motion'; 
 import Link from "next/link";
 import { ModeToggle } from '@/components/shared/ModeToggle';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
@@ -23,19 +23,25 @@ import {
   Globe,
 } from 'lucide-react';
 
-// Main Landing Page Component
 const LandingPage = () => {
+  const { t } = useTranslation();
   const [isDark, setIsDark] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  const [openFAQ, setOpenFAQ] = useState(null);
+  const [openFAQ, setOpenFAQ] = useState<number | null>(null);
 
   useEffect(() => {
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setIsDark(isDarkMode);
+    if (typeof window !== 'undefined') {
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setIsDark(isDarkMode);
+
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const handleChange = (e: MediaQueryListEvent) => setIsDark(e.matches);
+        mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
+    }
   }, []);
 
-  // Animation Variants for reusability
   const fadeUp = {
     hidden: { opacity: 0, y: 30 },
     visible: {
@@ -59,63 +65,59 @@ const LandingPage = () => {
   };
 
 
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-  };
-
   const features = [
     {
       icon: <CheckSquare className="h-8 w-8" />,
-      title: "Streamlined Reporting",
-      description: "Generate comprehensive reports with just a few clicks. Save time and ensure accuracy with our automated reporting system."
+      title: t('landing_page.features.streamlined_reporting.title'),
+      description: t('landing_page.features.streamlined_reporting.description')
     },
     {
       icon: <BarChart className="h-8 w-8" />,
-      title: "Advanced Analytics",
-      description: "Gain deep insights into your data with powerful analytics tools and interactive dashboards."
+      title: t('landing_page.features.advanced_analytics.title'),
+      description: t('landing_page.features.advanced_analytics.description')
     },
     {
       icon: <Users className="h-8 w-8" />,
-      title: "User Management",
-      description: "Efficiently manage user access, roles, and permissions across your organization."
+      title: t('landing_page.features.user_management.title'),
+      description: t('landing_page.features.user_management.description')
     },
     {
       icon: <Shield className="h-8 w-8" />,
-      title: "Enterprise Security",
-      description: "Bank-level security with end-to-end encryption and compliance certifications."
+      title: t('landing_page.features.enterprise_security.title'),
+      description: t('landing_page.features.enterprise_security.description')
     },
     {
       icon: <Zap className="h-8 w-8" />,
-      title: "Lightning Fast",
-      description: "Optimized performance ensures your reports load instantly, even with large datasets."
+      title: t('landing_page.features.lightning_fast.title'),
+      description: t('landing_page.features.lightning_fast.description')
     },
     {
       icon: <Globe className="h-8 w-8" />,
-      title: "Global Access",
-      description: "Access your data from anywhere in the world with our cloud-based platform."
+      title: t('landing_page.features.global_access.title'),
+      description: t('landing_page.features.global_access.description')
     }
   ];
 
   const steps = [
     {
       step: "01",
-      title: "Connect Your Data",
-      description: "Easily integrate with your existing systems and import your data in minutes."
+      title: t('landing_page.how_it_works.steps.connect.title'),
+      description: t('landing_page.how_it_works.steps.connect.description')
     },
     {
       step: "02", 
-      title: "Customize Reports",
-      description: "Use our drag-and-drop interface to create reports tailored to your needs."
+      title: t('landing_page.how_it_works.steps.customize.title'),
+      description: t('landing_page.how_it_works.steps.customize.description')
     },
     {
       step: "03",
-      title: "Share & Collaborate",
-      description: "Share insights with your team and collaborate in real-time on reports."
+      title: t('landing_page.how_it_works.steps.share.title'),
+      description: t('landing_page.how_it_works.steps.share.description')
     },
     {
       step: "04",
-      title: "Automate & Scale",
-      description: "Set up automated workflows and scale as your business grows."
+      title: t('landing_page.how_it_works.steps.automate.title'),
+      description: t('landing_page.how_it_works.steps.automate.description')
     }
   ];
 
@@ -124,7 +126,7 @@ const LandingPage = () => {
       name: "Sarah Johnson",
       role: "Data Director",
       company: "TechCorp Inc.",
-      content: "EduReport Hub has revolutionized how we handle our reporting. What used to take hours now takes minutes.",
+      content: t('landing_page.testimonials.quotes.quote1'),
       rating: 5,
       avatar: "SJ"
     },
@@ -132,7 +134,7 @@ const LandingPage = () => {
       name: "Michael Chen",
       role: "Operations Manager", 
       company: "Global Solutions",
-      content: "The analytics capabilities are incredible. We've gained insights we never knew we needed.",
+      content: t('landing_page.testimonials.quotes.quote2'),
       rating: 5,
       avatar: "MC"
     },
@@ -140,7 +142,7 @@ const LandingPage = () => {
       name: "Emily Rodriguez",
       role: "CEO",
       company: "StartupXYZ",
-      content: "As a growing company, the scalability and ease of use have been game-changers for us.",
+      content: t('landing_page.testimonials.quotes.quote3'),
       rating: 5,
       avatar: "ER"
     }
@@ -148,37 +150,36 @@ const LandingPage = () => {
 
   const faqs = [
     {
-      question: "How quickly can I get started with EduReport Hub?",
-      answer: "You can be up and running in under 15 minutes. Our onboarding process is designed to be quick and intuitive, with step-by-step guidance to help you connect your data sources and create your first report."
+      question: t('landing_page.faq.questions.q1.question'),
+      answer: t('landing_page.faq.questions.q1.answer')
     },
     {
-      question: "Is my data secure with EduReport Hub?",
-      answer: "Absolutely. We use enterprise-grade security including AES-256 encryption, SOC 2 compliance, and regular security audits. Your data is stored in secure, geo-redundant data centers with 99.9% uptime guarantee."
+      question: t('landing_page.faq.questions.q2.question'),
+      answer: t('landing_page.faq.questions.q2.answer')
     },
     {
-      question: "Can I integrate with my existing tools?",
-      answer: "Yes! EduReport Hub integrates with over 100+ popular business tools including CRM systems, databases, cloud storage, and more. Our API also allows for custom integrations."
+      question: t('landing_page.faq.questions.q3.question'),
+      answer: t('landing_page.faq.questions.q3.answer')
     },
     {
-      question: "What kind of support do you provide?",
-      answer: "We offer 24/7 support via chat, email, and phone. Premium plans include dedicated account management and priority support with guaranteed response times."
+      question: t('landing_page.faq.questions.q4.question'),
+      answer: t('landing_page.faq.questions.q4.answer')
     },
     {
-      question: "Is there a free trial available?",
-      answer: "Yes, we offer a 14-day free trial with full access to all features. No credit card required to start, and you can upgrade or cancel anytime."
+      question: t('landing_page.faq.questions.q5.question'),
+      answer: t('landing_page.faq.questions.q5.answer')
     }
   ];
 
   const stats = [
-    { number: "50K+", label: "Active Users" },
-    { number: "1M+", label: "Reports Generated" },
-    { number: "99.9%", label: "Uptime" },
-    { number: "24/7", label: "Support" }
+    { number: "50K+", label: t('landing_page.hero.stats.users') },
+    { number: "1M+", label: t('landing_page.hero.stats.reports') },
+    { number: "99.9%", label: t('landing_page.hero.stats.uptime') },
+    { number: "24/7", label: t('landing_page.hero.stats.support') }
   ];
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'dark bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
-      {/* Header */}
       <motion.header 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -188,56 +189,56 @@ const LandingPage = () => {
       }`}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            {/* Logo */}
             <div className="flex items-center gap-2">
               <div className="bg-gradient-to-r from-green-500 to-orange-500 p-2 rounded-lg">
                 <BookOpenCheck className="h-6 w-6 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-orange-600 bg-clip-text text-transparent">
-                EduReport Hub
+                {t('app_name')}
               </span>
             </div>
 
-            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-sm font-medium hover:text-green-600 transition-colors">Features</a>
-              <a href="#how-it-works" className="text-sm font-medium hover:text-green-600 transition-colors">How it Works</a>
-              <a href="#testimonials" className="text-sm font-medium hover:text-green-600 transition-colors">Testimonials</a>
-              <a href="#faq" className="text-sm font-medium hover:text-green-600 transition-colors">FAQ</a>
+              <a href="#features" className="text-sm font-medium hover:text-green-600 transition-colors">{t('landing_page.nav.features')}</a>
+              <a href="#how-it-works" className="text-sm font-medium hover:text-green-600 transition-colors">{t('landing_page.nav.how_it_works')}</a>
+              <a href="#testimonials" className="text-sm font-medium hover:text-green-600 transition-colors">{t('landing_page.nav.testimonials')}</a>
+              <a href="#faq" className="text-sm font-medium hover:text-green-600 transition-colors">{t('landing_page.nav.faq')}</a>
             </nav>
 
-            {/* Desktop Actions */}
             <div className="hidden md:flex items-center space-x-4">
               <LanguageSwitcher />
               <ModeToggle />
                <AuthAwareLoginButton />           
               
-              <Link href="login" className="bg-gradient-to-r from-green-500 to-orange-500 text-white px-6 py-2 rounded-lg font-medium hover:from-green-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105">
-                Get Started
+              <Link href="/login" className="bg-gradient-to-r from-green-500 to-orange-500 text-white px-6 py-2 rounded-lg font-medium hover:from-green-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105">
+                {t('landing_page.hero.get_started')}
               </Link>
             </div>
 
-            {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center space-x-2">
               <LanguageSwitcher />
               <ModeToggle />
-              <AuthAwareLoginButton />     
+               <button
+                className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
             </div>
           </div>
 
-          {/* Mobile Menu */}
           {isMobileMenuOpen && (
             <div className={`md:hidden border-t py-4 ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
               <div className="flex flex-col space-y-4">
-                <a href="#features" className="text-sm font-medium hover:text-green-600 transition-colors">Features</a>
-                <a href="#how-it-works" className="text-sm font-medium hover:text-green-600 transition-colors">How it Works</a>
-                <a href="#testimonials" className="text-sm font-medium hover:text-green-600 transition-colors">Testimonials</a>
-                <a href="#faq" className="text-sm font-medium hover:text-green-600 transition-colors">FAQ</a>
+                <a href="#features" className="text-sm font-medium hover:text-green-600 transition-colors">{t('landing_page.nav.features')}</a>
+                <a href="#how-it-works" className="text-sm font-medium hover:text-green-600 transition-colors">{t('landing_page.nav.how_it_works')}</a>
+                <a href="#testimonials" className="text-sm font-medium hover:text-green-600 transition-colors">{t('landing_page.nav.testimonials')}</a>
+                <a href="#faq" className="text-sm font-medium hover:text-green-600 transition-colors">{t('landing_page.nav.faq')}</a>
                 <hr className={`${isDark ? 'border-gray-800' : 'border-gray-200'}`} />
                 <AuthAwareLoginButton /> 
-                <button className="bg-gradient-to-r from-green-500 to-orange-500 text-white px-6 py-2 rounded-lg font-medium hover:from-green-600 hover:to-orange-600 transition-all duration-300 text-left w-fit">
-                  Get Started
-                </button>
+                <Link href="/login" className="bg-gradient-to-r from-green-500 to-orange-500 text-white px-6 py-2 rounded-lg font-medium hover:from-green-600 hover:to-orange-600 transition-all duration-300 text-left w-fit">
+                  {t('landing_page.hero.get_started')}
+                </Link>
               </div>
             </div>
           )}
@@ -245,7 +246,6 @@ const LandingPage = () => {
       </motion.header>
 
       <main>
-        {/* Hero Section */}
         <section className="relative overflow-hidden">
           <div className="bg-gradient-to-br from-green-500 via-green-600 to-orange-500 relative">
             <div className="absolute inset-0 bg-black/10"></div>
@@ -258,24 +258,20 @@ const LandingPage = () => {
                     variants={staggerContainer}
                     className="text-center lg:text-left text-white"
                   >
-                    <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                      Transform Your Data Into 
-                      <span className="block text-orange-200">Actionable Insights</span>
+                    <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6" dangerouslySetInnerHTML={{ __html: t('landing_page.hero.title') }}>
                     </motion.h1>
                     <motion.p variants={fadeUp} className="text-xl text-green-100 mb-8 max-w-lg mx-auto lg:mx-0">
-                      Streamline your reporting process with our powerful analytics platform. 
-                      Generate professional reports in minutes, not hours.
+                      {t('landing_page.hero.subtitle')}
                     </motion.p>
                     <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                      <button className="bg-white text-gray-900 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2">
-                        Start Free Trial <ArrowRight className="h-5 w-5" />
-                      </button>
+                      <Link href="/login" className="bg-white text-gray-900 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2">
+                        {t('landing_page.hero.start_trial')} <ArrowRight className="h-5 w-5" />
+                      </Link>
                       <button className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300 flex items-center justify-center gap-2">
-                        <Play className="h-5 w-5" /> Watch Demo
+                        <Play className="h-5 w-5" /> {t('landing_page.hero.watch_demo')}
                       </button>
                     </motion.div>
                     
-                    {/* Stats */}
                     <motion.div 
                       variants={staggerContainer}
                       initial="hidden"
@@ -300,7 +296,7 @@ const LandingPage = () => {
                     <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-2">
                       <img
                         src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                        alt="Dashboard Preview"
+                        alt={t('landing_page.hero.dashboard_alt')}
                         className="w-full h-auto rounded-xl"
                       />
                     </div>
@@ -312,7 +308,6 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* Features Section */}
         <motion.section 
           id="features" 
           className={`py-20 ${isDark ? 'bg-gray-800' : 'bg-gray-50'}`}
@@ -323,12 +318,10 @@ const LandingPage = () => {
         >
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div variants={fadeUp} className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                Powerful Features for 
-                <span className="bg-gradient-to-r from-green-600 to-orange-600 bg-clip-text text-transparent"> Modern Teams</span>
+              <h2 className="text-3xl sm:text-4xl font-bold mb-4" dangerouslySetInnerHTML={{ __html: t('landing_page.features.title') }}>
               </h2>
               <p className={`text-xl max-w-3xl mx-auto ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                Everything you need to create, analyze, and share professional reports with your team.
+                {t('landing_page.features.subtitle')}
               </p>
             </motion.div>
             
@@ -358,14 +351,14 @@ const LandingPage = () => {
             </motion.div>
           </div>
         </motion.section>
-  {/* Mobile-First Showcase */}
+
         <motion.section className="w-full py-12 md:py-24 lg:py-32 bg-white dark:bg-gray-900">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Designed for On-the-Go Inspections</h2>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">{t('landing_page.mobile_showcase.title')}</h2>
                 <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                  Our mobile-first approach ensures a seamless experience for inspectors in the field.
+                  {t('landing_page.mobile_showcase.subtitle')}
                 </p>
               </div>
             </div>
@@ -373,7 +366,7 @@ const LandingPage = () => {
               <div className="relative w-full max-w-md aspect-[9/16] rounded-[2.5rem] bg-gray-800 dark:bg-gray-950 shadow-2xl overflow-hidden border-[10px] border-gray-800 dark:border-gray-950">
                 <div className="absolute inset-0 p-2 overflow-hidden">
                   <img
-                    alt="Mobile App Screenshot"
+                    alt={t('landing_page.mobile_showcase.image_alt')}
                     className="object-cover w-full h-full rounded-[1.5rem]"
                     height="800"
                     src="/mobileImage.png"
@@ -390,7 +383,7 @@ const LandingPage = () => {
             </div>
           </div>
         </motion.section>
-        {/* How It Works Section */}
+
         <motion.section 
           id="how-it-works" 
           className="py-20"
@@ -402,10 +395,10 @@ const LandingPage = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div variants={fadeUp} className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                How It Works
+                {t('landing_page.how_it_works.title')}
               </h2>
               <p className={`text-xl max-w-3xl mx-auto ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                Get started in minutes with our simple 4-step process.
+                {t('landing_page.how_it_works.subtitle')}
               </p>
             </motion.div>
 
@@ -432,7 +425,6 @@ const LandingPage = () => {
           </div>
         </motion.section>
 
-        {/* Testimonials Section */}
         <motion.section 
           id="testimonials" 
           className={`py-20 ${isDark ? 'bg-gray-800' : 'bg-gray-50'}`}
@@ -444,10 +436,10 @@ const LandingPage = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                What Our Customers Say
+                {t('landing_page.testimonials.title')}
               </h2>
               <p className={`text-xl max-w-3xl mx-auto ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                Join thousands of satisfied customers who have transformed their reporting process.
+                {t('landing_page.testimonials.subtitle')}
               </p>
             </div>
 
@@ -475,7 +467,6 @@ const LandingPage = () => {
                   </div>
                 </div>
 
-                {/* Testimonial Navigation */}
                 <div className="flex justify-center gap-2">
                   {testimonials.map((_, index) => (
                     <button
@@ -494,7 +485,6 @@ const LandingPage = () => {
           </div>
         </motion.section>
 
-        {/* FAQ Section */}
         <motion.section 
           id="faq" 
           className="py-20"
@@ -506,10 +496,10 @@ const LandingPage = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div variants={fadeUp} className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                Frequently Asked Questions
+                {t('landing_page.faq.title')}
               </h2>
               <p className={`text-xl max-w-3xl mx-auto ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                Got questions? We've got answers. Can't find what you're looking for? Contact our support team.
+                {t('landing_page.faq.subtitle')}
               </p>
             </motion.div>
 
@@ -550,7 +540,6 @@ const LandingPage = () => {
           </div>
         </motion.section>
 
-        {/* CTA Section */}
         <motion.section 
           className="bg-gradient-to-r from-green-500 to-orange-500 py-20 text-white"
           initial="hidden"
@@ -560,27 +549,26 @@ const LandingPage = () => {
         >
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl sm:text-4xl font-bold mb-6">
-              Ready to Transform Your Reporting?
+              {t('landing_page.cta.title')}
             </h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto text-green-100">
-              Join thousands of teams who have already revolutionized their data analysis workflow.
+              {t('landing_page.cta.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-gray-900 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
-                Start Your Free Trial
-              </button>
+              <Link href="/login" className="bg-white text-gray-900 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
+                {t('landing_page.cta.start_trial')}
+              </Link>
               <button className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300">
-                Schedule a Demo
+                {t('landing_page.cta.schedule_demo')}
               </button>
             </div>
             <p className="text-sm mt-4 text-green-100">
-              No credit card required • 14-day free trial • Cancel anytime
+              {t('landing_page.cta.subtext')}
             </p>
           </div>
         </motion.section>
       </main>
 
-      {/* Footer */}
       <footer className={`py-12 border-t ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-gray-50 border-gray-200'}`}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
@@ -595,41 +583,41 @@ const LandingPage = () => {
                   <BookOpenCheck className="h-6 w-6 text-white" />
                 </div>
                 <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-orange-600 bg-clip-text text-transparent">
-                  EduReport Hub
+                  {t('app_name')}
                 </span>
               </div>
               <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'} mb-4`}>
-                Transform your data into actionable insights with our powerful reporting platform.
+                {t('landing_page.footer.description')}
               </p>
             </motion.div>
             
             <motion.div variants={fadeUp}>
-              <h3 className="font-semibold mb-4">Product</h3>
+              <h3 className="font-semibold mb-4">{t('landing_page.footer.product.title')}</h3>
               <ul className={`space-y-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                <li><a href="#" className="hover:text-green-600 transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-green-600 transition-colors">Pricing</a></li>
-                <li><a href="#" className="hover:text-green-600 transition-colors">Integrations</a></li>
-                <li><a href="#" className="hover:text-green-600 transition-colors">API</a></li>
+                <li><a href="#" className="hover:text-green-600 transition-colors">{t('landing_page.footer.product.features')}</a></li>
+                <li><a href="#" className="hover:text-green-600 transition-colors">{t('landing_page.footer.product.pricing')}</a></li>
+                <li><a href="#" className="hover:text-green-600 transition-colors">{t('landing_page.footer.product.integrations')}</a></li>
+                <li><a href="#" className="hover:text-green-600 transition-colors">{t('landing_page.footer.product.api')}</a></li>
               </ul>
             </motion.div>
             
             <motion.div variants={fadeUp}>
-              <h3 className="font-semibold mb-4">Company</h3>
+              <h3 className="font-semibold mb-4">{t('landing_page.footer.company.title')}</h3>
               <ul className={`space-y-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                <li><a href="#" className="hover:text-green-600 transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-green-600 transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-green-600 transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-green-600 transition-colors">Contact</a></li>
+                <li><a href="#" className="hover:text-green-600 transition-colors">{t('landing_page.footer.company.about')}</a></li>
+                <li><a href="#" className="hover:text-green-600 transition-colors">{t('landing_page.footer.company.blog')}</a></li>
+                <li><a href="#" className="hover:text-green-600 transition-colors">{t('landing_page.footer.company.careers')}</a></li>
+                <li><a href="#" className="hover:text-green-600 transition-colors">{t('landing_page.footer.company.contact')}</a></li>
               </ul>
             </motion.div>
             
             <motion.div variants={fadeUp}>
-              <h3 className="font-semibold mb-4">Support</h3>
+              <h3 className="font-semibold mb-4">{t('landing_page.footer.support.title')}</h3>
               <ul className={`space-y-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                <li><a href="#" className="hover:text-green-600 transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-green-600 transition-colors">Documentation</a></li>
-                <li><a href="#" className="hover:text-green-600 transition-colors">Status</a></li>
-                <li><a href="#" className="hover:text-green-600 transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-green-600 transition-colors">{t('landing_page.footer.support.help_center')}</a></li>
+                <li><a href="#" className="hover:text-green-600 transition-colors">{t('landing_page.footer.support.documentation')}</a></li>
+                <li><a href="#" className="hover:text-green-600 transition-colors">{t('landing_page.footer.support.status')}</a></li>
+                <li><a href="#" className="hover:text-green-600 transition-colors">{t('landing_page.footer.support.privacy_policy')}</a></li>
               </ul>
             </motion.div>
           </motion.div>
@@ -638,7 +626,7 @@ const LandingPage = () => {
           
           <div className="flex flex-col sm:flex-row justify-between items-center">
             <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm`}>
-              © 2025 EduReport Hub. All rights reserved.
+              {t('landing_page.footer.copyright')}
             </p>
             <div className="flex space-x-6 mt-4 sm:mt-0">
               <a href="#" className={`${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'} transition-colors`}>
@@ -659,3 +647,4 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+    

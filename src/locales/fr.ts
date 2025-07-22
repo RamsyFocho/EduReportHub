@@ -1,4 +1,3 @@
-
 export const fr = {
   app_name: 'EduReport Hub',
   app_name_short: 'EduReport',
@@ -59,6 +58,151 @@ export const fr = {
   timestamps: 'Horodatages',
   created_at: 'Créé le',
   updated_at: 'Dernière mise à jour',
+
+  landing_page: {
+    nav: {
+      features: 'Fonctionnalités',
+      how_it_works: 'Comment ça marche',
+      testimonials: 'Témoignages',
+      faq: 'FAQ',
+    },
+    hero: {
+      title: 'Transformez vos données en <span class="block text-orange-200">perspectives actionnables</span>',
+      subtitle: 'Rationalisez votre processus de reporting avec notre puissante plateforme d\'analyse. Générez des rapports professionnels en quelques minutes, pas en heures.',
+      get_started: 'Commencer',
+      start_trial: 'Démarrer l\'essai gratuit',
+      watch_demo: 'Voir la démo',
+      stats: {
+        users: 'Utilisateurs actifs',
+        reports: 'Rapports générés',
+        uptime: 'Disponibilité',
+        support: 'Support',
+      },
+      dashboard_alt: 'Aperçu du tableau de bord',
+    },
+    features: {
+      title: 'Des fonctionnalités puissantes pour les <span class="bg-gradient-to-r from-green-600 to-orange-600 bg-clip-text text-transparent">équipes modernes</span>',
+      subtitle: 'Tout ce dont vous avez besoin pour créer, analyser et partager des rapports professionnels avec votre équipe.',
+      streamlined_reporting: {
+        title: 'Rapports simplifiés',
+        description: 'Générez des rapports complets en quelques clics. Gagnez du temps et assurez la précision avec notre système de reporting automatisé.',
+      },
+      advanced_analytics: {
+        title: 'Analyses avancées',
+        description: 'Obtenez des informations approfondies sur vos données avec de puissants outils d\'analyse et des tableaux de bord interactifs.',
+      },
+      user_management: {
+        title: 'Gestion des utilisateurs',
+        description: 'Gérez efficacement l\'accès des utilisateurs, les rôles et les autorisations dans votre organisation.',
+      },
+      enterprise_security: {
+        title: 'Sécurité d\'entreprise',
+        description: 'Sécurité de niveau bancaire avec cryptage de bout en bout et certifications de conformité.',
+      },
+      lightning_fast: {
+        title: 'Ultra-rapide',
+        description: 'Les performances optimisées garantissent que vos rapports se chargent instantanément, même avec de grands ensembles de données.',
+      },
+      global_access: {
+        title: 'Accès mondial',
+        description: 'Accédez à vos données de n\'importe où dans le monde avec notre plateforme basée sur le cloud.',
+      },
+    },
+     mobile_showcase: {
+        title: "Conçu pour les inspections sur le terrain",
+        subtitle: "Notre approche axée sur le mobile garantit une expérience transparente pour les inspecteurs sur le terrain.",
+        image_alt: "Capture d'écran de l'application mobile",
+    },
+    how_it_works: {
+      title: 'Comment ça marche',
+      subtitle: 'Commencez en quelques minutes avec notre processus simple en 4 étapes.',
+      steps: {
+        connect: {
+          title: 'Connectez vos données',
+          description: 'Intégrez facilement vos systèmes existants et importez vos données en quelques minutes.',
+        },
+        customize: {
+          title: 'Personnalisez les rapports',
+          description: 'Utilisez notre interface glisser-déposer pour créer des rapports adaptés à vos besoins.',
+        },
+        share: {
+          title: 'Partagez et collaborez',
+          description: 'Partagez des informations avec votre équipe et collaborez en temps réel sur les rapports.',
+        },
+        automate: {
+          title: 'Automatisez et évoluez',
+          description: 'Mettez en place des flux de travail automatisés et évoluez à mesure que votre entreprise se développe.',
+        },
+      },
+    },
+    testimonials: {
+      title: 'Ce que disent nos clients',
+      subtitle: 'Rejoignez des milliers de clients satisfaits qui ont transformé leur processus de reporting.',
+      quotes: {
+        quote1: 'EduReport Hub a révolutionné la façon dont nous gérons nos rapports. Ce qui prenait des heures ne prend maintenant que quelques minutes.',
+        quote2: 'Les capacités d\'analyse sont incroyables. Nous avons obtenu des informations dont nous ne savions même pas que nous avions besoin.',
+        quote3: 'En tant qu\'entreprise en croissance, l\'évolutivité et la facilité d\'utilisation ont été des facteurs déterminants pour nous.',
+      },
+    },
+    faq: {
+      title: 'Questions fréquemment posées',
+      subtitle: 'Vous avez des questions ? Nous avons des réponses. Vous ne trouvez pas ce que vous cherchez ? Contactez notre équipe de support.',
+      questions: {
+        q1: {
+          question: 'En combien de temps puis-je commencer à utiliser EduReport Hub ?',
+          answer: 'Vous pouvez être opérationnel en moins de 15 minutes. Notre processus d\'intégration est conçu pour être rapide et intuitif, avec un guidage étape par étape pour vous aider à connecter vos sources de données et à créer votre premier rapport.',
+        },
+        q2: {
+          question: 'Mes données sont-elles en sécurité avec EduReport Hub ?',
+          answer: 'Absolument. Nous utilisons une sécurité de niveau entreprise, y compris le cryptage AES-256, la conformité SOC 2 et des audits de sécurité réguliers. Vos données sont stockées dans des centres de données sécurisés et géo-redondants avec une garantie de disponibilité de 99,9 %.',
+        },
+        q3: {
+          question: 'Puis-je l\'intégrer à mes outils existants ?',
+          answer: 'Oui ! EduReport Hub s\'intègre avec plus de 100 outils professionnels populaires, y compris les systèmes CRM, les bases de données, le stockage en nuage, etc. Notre API permet également des intégrations personnalisées.',
+        },
+        q4: {
+          question: 'Quel type de support offrez-vous ?',
+          answer: 'Nous offrons un support 24h/24 et 7j/7 par chat, e-mail et téléphone. Les forfaits Premium incluent une gestion de compte dédiée et un support prioritaire avec des temps de réponse garantis.',
+        },
+        q5: {
+          question: 'Un essai gratuit est-il disponible ?',
+          answer: 'Oui, nous offrons un essai gratuit de 14 jours avec un accès complet à toutes les fonctionnalités. Aucune carte de crédit n\'est requise pour commencer, et vous pouvez mettre à niveau ou annuler à tout moment.',
+        },
+      },
+    },
+    cta: {
+      title: 'Prêt à transformer votre reporting ?',
+      subtitle: 'Rejoignez des milliers d\'équipes qui ont déjà révolutionné leur flux de travail d\'analyse de données.',
+      start_trial: 'Commencez votre essai gratuit',
+      schedule_demo: 'Planifier une démo',
+      subtext: 'Aucune carte de crédit requise • Essai gratuit de 14 jours • Annulez à tout moment',
+    },
+    footer: {
+      description: 'Transformez vos données en informations exploitables avec notre puissante plateforme de reporting.',
+      copyright: '© 2025 EduReport Hub. Tous droits réservés.',
+      product: {
+        title: 'Produit',
+        features: 'Fonctionnalités',
+        pricing: 'Tarifs',
+        integrations: 'Intégrations',
+        api: 'API',
+      },
+      company: {
+        title: 'Entreprise',
+        about: 'À propos',
+        blog: 'Blog',
+        careers: 'Carrières',
+        contact: 'Contact',
+      },
+      support: {
+        title: 'Support',
+        help_center: 'Centre d\'aide',
+        documentation: 'Documentation',
+        status: 'Statut',
+        privacy_policy: 'Politique de confidentialité',
+      },
+    },
+  },
 
   hero: {
     title: "Moderniser la surveillance de l'éducation",
@@ -221,3 +365,4 @@ export const fr = {
     go_to_login: 'Aller à la connexion',
   }
 };
+    

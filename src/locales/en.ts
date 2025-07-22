@@ -1,4 +1,3 @@
-
 export const en = {
   app_name: 'EduReport Hub',
   app_name_short: 'EduReport',
@@ -59,6 +58,151 @@ export const en = {
   timestamps: 'Timestamps',
   created_at: 'Created at',
   updated_at: 'Last updated',
+
+  landing_page: {
+    nav: {
+      features: 'Features',
+      how_it_works: 'How it Works',
+      testimonials: 'Testimonials',
+      faq: 'FAQ',
+    },
+    hero: {
+      title: 'Transform Your Data Into <span class="block text-orange-200">Actionable Insights</span>',
+      subtitle: 'Streamline your reporting process with our powerful analytics platform. Generate professional reports in minutes, not hours.',
+      get_started: 'Get Started',
+      start_trial: 'Start Free Trial',
+      watch_demo: 'Watch Demo',
+      stats: {
+        users: 'Active Users',
+        reports: 'Reports Generated',
+        uptime: 'Uptime',
+        support: 'Support',
+      },
+      dashboard_alt: 'Dashboard Preview',
+    },
+    features: {
+      title: 'Powerful Features for <span class="bg-gradient-to-r from-green-600 to-orange-600 bg-clip-text text-transparent"> Modern Teams</span>',
+      subtitle: 'Everything you need to create, analyze, and share professional reports with your team.',
+      streamlined_reporting: {
+        title: 'Streamlined Reporting',
+        description: 'Generate comprehensive reports with just a few clicks. Save time and ensure accuracy with our automated reporting system.',
+      },
+      advanced_analytics: {
+        title: 'Advanced Analytics',
+        description: 'Gain deep insights into your data with powerful analytics tools and interactive dashboards.',
+      },
+      user_management: {
+        title: 'User Management',
+        description: 'Efficiently manage user access, roles, and permissions across your organization.',
+      },
+      enterprise_security: {
+        title: 'Enterprise Security',
+        description: 'Bank-level security with end-to-end encryption and compliance certifications.',
+      },
+      lightning_fast: {
+        title: 'Lightning Fast',
+        description: 'Optimized performance ensures your reports load instantly, even with large datasets.',
+      },
+      global_access: {
+        title: 'Global Access',
+        description: 'Access your data from anywhere in the world with our cloud-based platform.',
+      },
+    },
+    mobile_showcase: {
+        title: "Designed for On-the-Go Inspections",
+        subtitle: "Our mobile-first approach ensures a seamless experience for inspectors in the field.",
+        image_alt: "Mobile App Screenshot",
+    },
+    how_it_works: {
+      title: 'How It Works',
+      subtitle: 'Get started in minutes with our simple 4-step process.',
+      steps: {
+        connect: {
+          title: 'Connect Your Data',
+          description: 'Easily integrate with your existing systems and import your data in minutes.',
+        },
+        customize: {
+          title: 'Customize Reports',
+          description: 'Use our drag-and-drop interface to create reports tailored to your needs.',
+        },
+        share: {
+          title: 'Share & Collaborate',
+          description: 'Share insights with your team and collaborate in real-time on reports.',
+        },
+        automate: {
+          title: 'Automate & Scale',
+          description: 'Set up automated workflows and scale as your business grows.',
+        },
+      },
+    },
+    testimonials: {
+      title: 'What Our Customers Say',
+      subtitle: 'Join thousands of satisfied customers who have transformed their reporting process.',
+      quotes: {
+        quote1: 'EduReport Hub has revolutionized how we handle our reporting. What used to take hours now takes minutes.',
+        quote2: 'The analytics capabilities are incredible. We\'ve gained insights we never knew we needed.',
+        quote3: 'As a growing company, the scalability and ease of use have been game-changers for us.',
+      },
+    },
+    faq: {
+      title: 'Frequently Asked Questions',
+      subtitle: 'Got questions? We\'ve got answers. Can\'t find what you\'re looking for? Contact our support team.',
+      questions: {
+        q1: {
+          question: 'How quickly can I get started with EduReport Hub?',
+          answer: 'You can be up and running in under 15 minutes. Our onboarding process is designed to be quick and intuitive, with step-by-step guidance to help you connect your data sources and create your first report.',
+        },
+        q2: {
+          question: 'Is my data secure with EduReport Hub?',
+          answer: 'Absolutely. We use enterprise-grade security including AES-256 encryption, SOC 2 compliance, and regular security audits. Your data is stored in secure, geo-redundant data centers with 99.9% uptime guarantee.',
+        },
+        q3: {
+          question: 'Can I integrate with my existing tools?',
+          answer: 'Yes! EduReport Hub integrates with over 100+ popular business tools including CRM systems, databases, cloud storage, and more. Our API also allows for custom integrations.',
+        },
+        q4: {
+          question: 'What kind of support do you provide?',
+          answer: 'We offer 24/7 support via chat, email, and phone. Premium plans include dedicated account management and priority support with guaranteed response times.',
+        },
+        q5: {
+          question: 'Is there a free trial available?',
+          answer: 'Yes, we offer a 14-day free trial with full access to all features. No credit card required to start, and you can upgrade or cancel anytime.',
+        },
+      },
+    },
+    cta: {
+      title: 'Ready to Transform Your Reporting?',
+      subtitle: 'Join thousands of teams who have already revolutionized their data analysis workflow.',
+      start_trial: 'Start Your Free Trial',
+      schedule_demo: 'Schedule a Demo',
+      subtext: 'No credit card required • 14-day free trial • Cancel anytime',
+    },
+    footer: {
+      description: 'Transform your data into actionable insights with our powerful reporting platform.',
+      copyright: '© 2025 EduReport Hub. All rights reserved.',
+      product: {
+        title: 'Product',
+        features: 'Features',
+        pricing: 'Pricing',
+        integrations: 'Integrations',
+        api: 'API',
+      },
+      company: {
+        title: 'Company',
+        about: 'About',
+        blog: 'Blog',
+        careers: 'Careers',
+        contact: 'Contact',
+      },
+      support: {
+        title: 'Support',
+        help_center: 'Help Center',
+        documentation: 'Documentation',
+        status: 'Status',
+        privacy_policy: 'Privacy Policy',
+      },
+    },
+  },
 
   hero: {
     title: 'Modernizing Educational Oversight',
@@ -221,3 +365,4 @@ export const en = {
     go_to_login: 'Go to Login',
   }
 };
+    
