@@ -154,7 +154,7 @@ export default function ReportsPage() {
 
   return (
     <AnimatedPage>
-      <Card>
+      <Card className="w-full">
         <CardHeader>
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
             <div>
@@ -203,6 +203,8 @@ export default function ReportsPage() {
               <TableRow>
                 <TableHead>{t('teacher')}</TableHead>
                 <TableHead className="hidden md:table-cell">{t('establishment')}</TableHead>
+                <TableHead>Created By</TableHead>
+                <TableHead>Role</TableHead>
                 <TableHead className="hidden lg:table-cell">{t('course')}</TableHead>
                 <TableHead className="hidden lg:table-cell">{t('date')}</TableHead>
                 <TableHead>{t('sanction')}</TableHead>
@@ -215,6 +217,8 @@ export default function ReportsPage() {
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-4 w-[150px]" /></TableCell>
                     <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-[200px]" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-[150px]" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
                     <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-[120px]" /></TableCell>
                     <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-[80px]" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-[100px] rounded-full" /></TableCell>
@@ -226,6 +230,8 @@ export default function ReportsPage() {
                   <TableRow key={report.reportId}>
                     <TableCell>{report.teacherFullName || 'N/A'}</TableCell>
                     <TableCell className="hidden md:table-cell">{report.establishmentName || 'N/A'}</TableCell>
+                    <TableCell>{report.email || 'N/A'}</TableCell>
+                    <TableCell>{report.role?.[0]?.name?.replace('ROLE_', '') || 'N/A'}</TableCell>
                     <TableCell className="hidden lg:table-cell">{report.courseTitle || 'N/A'}</TableCell>
                     <TableCell className="hidden lg:table-cell">{new Date(report.date).toLocaleDateString()}</TableCell>
                     <TableCell>
@@ -259,7 +265,7 @@ export default function ReportsPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center h-24">
+                  <TableCell colSpan={8} className="text-center h-24">
                     {t('reports_page.no_reports_found')}
                   </TableCell>
                 </TableRow>
@@ -298,7 +304,7 @@ export default function ReportsPage() {
                 <h3 className="font-semibold text-lg">{t('attendance')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
                     <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('new_report_page.present_students')}</span> <span className="font-medium">{selectedReport.studentPresent ?? 'N/A'}</span></div>
-                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('new_report_page.absent_students')}</span> <span className="font-medium">{selectedReport.studentNum - selectedReport.studentPresent ?? 'N/A'}</span></div>
+                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('new_report_page.absent_students')}</span> <span className="font-medium">{selectedReport.absentStudents ?? 'N/A'}</span></div>
                     <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('reports_page.total_students')}</span> <span className="font-medium">{selectedReport.studentNum ?? 'N/A'}</span></div>
                 </div>
 

@@ -105,7 +105,7 @@ export default function TeachersPage() {
 
   return (
     <AnimatedPage>
-      <Card>
+      <Card className="w-full">
         <CardHeader>
           <CardTitle className="font-headline text-2xl">{t('teachers_page.title')}</CardTitle>
           <CardDescription>{t('teachers_page.description')}</CardDescription>

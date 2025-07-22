@@ -23,6 +23,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Establishment, Teacher } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 
 const reportSchema = z.object({
   establishmentName: z.string().nonempty({ message: 'Establishment is required.' }),
@@ -32,14 +33,27 @@ const reportSchema = z.object({
   date: z.date({ required_error: 'A date is required.' }),
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
   endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
+  totalStudents: z.coerce.number().min(1, 'Total students must be at least 1.'),
   presentStudents: z.coerce.number().min(0, 'Present students cannot be negative.'),
   observation: z.string().nonempty({ message: 'Observation is required.' }),
+}).refine(data => data.presentStudents <= data.totalStudents, {
+  message: "Present students cannot exceed total students.",
+  path: ["presentStudents"],
+}).refine(data => {
+    if (data.startTime && data.endTime) {
+        return data.endTime > data.startTime;
+    }
+    return true;
+}, {
+    message: "End time must be after start time.",
+    path: ["endTime"],
 });
 
 export default function NewReportPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -66,30 +80,37 @@ export default function NewReportPage() {
         startTime: "08:00",
         endTime: "09:00",
         presentStudents: 0,
+        totalStudents: 0,
+        date: new Date(),
     }
   });
 
   async function onSubmit(values: z.infer<typeof reportSchema>) {
+    if (!user?.email) {
+        toast({ variant: 'destructive', title: t('error'), description: "User not authenticated." });
+        return;
+    }
     setIsLoading(true);
     
-    const [firstName, ...lastNameParts] = values.teacherFullName.split(' ');
-    const lastName = lastNameParts.join(' ');
+    const selectedTeacher = teachers.find(t => `${t.firstName} ${t.lastName}` === values.teacherFullName);
 
     const payload = {
-      establishment: { name: values.establishmentName },
-      teacher: { 
-        firstName: firstName,
-        lastName: lastName
-      },
+      userEmail: user.email,
+      establishmentName: values.establishmentName,
+      teacherFirstName: selectedTeacher?.firstName,
+      teacherLastName: selectedTeacher?.lastName,
+      teacherEmail: selectedTeacher?.email,
       className: values.className,
-      courseTitle: values.courseTitle,
+      studentNum: values.totalStudents,
+      studentPresent: values.presentStudents,
       date: format(values.date, 'yyyy-MM-dd'),
       startTime: `${values.startTime}:00`,
       endTime: `${values.endTime}:00`,
-      studentPresent: values.presentStudents,
+      courseTitle: values.courseTitle,
       observation: values.observation,
-      sanctionType: "NONE",
     };
+    
+    console.log("Sending payload:", payload);
 
     try {
       await api.post('/api/reports', payload);
@@ -167,7 +188,7 @@ export default function NewReportPage() {
                           </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date('1900-01-01')} initialFocus />
+                          <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled initialFocus />
                         </PopoverContent>
                       </Popover>
                       <FormMessage />
@@ -178,7 +199,8 @@ export default function NewReportPage() {
                   <FormField control={form.control} name="startTime" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.start_time')}</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="endTime" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.end_time')}</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 </div>
-                 <div className="grid grid-cols-1">
+                 <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="totalStudents" render={({ field }) => (<FormItem><FormLabel>{t('reports_page.total_students')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="presentStudents" render={({ field }) => (<FormItem><FormLabel>{t('new_report_page.present_students')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 </div>
               </div>
@@ -195,3 +217,4 @@ export default function NewReportPage() {
     </AnimatedPage>
   );
 }
+
