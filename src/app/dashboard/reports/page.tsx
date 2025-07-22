@@ -80,7 +80,8 @@ export default function ReportsPage() {
         report.teacherFullName?.toLowerCase().includes(lowercasedFilter) ||
         report.establishmentName?.toLowerCase().includes(lowercasedFilter) ||
         report.courseTitle?.toLowerCase().includes(lowercasedFilter) ||
-        report.observation?.toLowerCase().includes(lowercasedFilter)
+        report.observation?.toLowerCase().includes(lowercasedFilter) ||
+        report.createdBy?.username?.toLowerCase().includes(lowercasedFilter)
       );
     }
 
@@ -102,8 +103,16 @@ export default function ReportsPage() {
     // Apply sorting
     if (sortConfig.key) {
       filtered.sort((a, b) => {
-        const aValue = a[sortConfig.key];
-        const bValue = b[sortConfig.key];
+        let aValue: any;
+        let bValue: any;
+
+        if (sortConfig.key === 'createdBy') {
+          aValue = a.createdBy?.username || '';
+          bValue = b.createdBy?.username || '';
+        } else {
+          aValue = a[sortConfig.key];
+          bValue = b[sortConfig.key];
+        }
 
         if (aValue === null || aValue === undefined) return 1;
         if (bValue === null || bValue === undefined) return -1;

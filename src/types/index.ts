@@ -55,6 +55,7 @@ export interface Report {
         id: number;
         username: string;
         email: string;
+        roles: { name: string }[];
     }
     [key: string]: any; // Index signature for dynamic sorting
 }

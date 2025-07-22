@@ -76,8 +76,8 @@ export default function ReportTable({ reports, requestSort, sortConfig, totalRep
                 </Button>
               </TableHead>
               <TableHead className="hidden md:table-cell">
-                <Button variant="ghost" onClick={() => requestSort('courseTitle')}>
-                  {t('course')} <ArrowUpDown className="ml-2 h-4 w-4" /> {getSortIndicator('courseTitle')}
+                <Button variant="ghost" onClick={() => requestSort('createdBy')}>
+                  {t('inspector')} <ArrowUpDown className="ml-2 h-4 w-4" /> {getSortIndicator('createdBy')}
                 </Button>
               </TableHead>
               <TableHead className="hidden lg:table-cell">
@@ -99,7 +99,7 @@ export default function ReportTable({ reports, requestSort, sortConfig, totalRep
                 <TableRow key={report.reportId}>
                   <TableCell className="font-medium">{report.teacherFullName}</TableCell>
                   <TableCell>{report.establishmentName}</TableCell>
-                  <TableCell className="hidden md:table-cell">{report.courseTitle}</TableCell>
+                  <TableCell className="hidden md:table-cell">{report.createdBy?.username || 'N/A'}</TableCell>
                   <TableCell className="hidden lg:table-cell">{format(new Date(report.date), "PPP")}</TableCell>
                   <TableCell>
                     <Badge variant={getSanctionVariant(report.sanctionType)}>
