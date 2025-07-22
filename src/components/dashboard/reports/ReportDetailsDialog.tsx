@@ -46,9 +46,8 @@ export default function ReportDetailsDialog({ report, isOpen, onClose }: ReportD
         </DialogHeader>
         <div className="grid gap-6 py-4 max-h-[70vh] overflow-y-auto pr-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
-            <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('inspector')}</span> <span className="font-medium">{report.createdBy?.username || 'N/A'}</span></div>
-            <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('email')}</span> <span className="font-medium">{report.createdBy?.email || 'N/A'}</span></div>
-            <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('role')}</span> <span className="font-medium">{report.createdBy?.roles?.map(r => r.name).join(', ') || 'N/A'}</span></div>
+            <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('inspector')}</span> <span className="font-medium">{report.email || 'N/A'}</span></div>
+            <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('role')}</span> <span className="font-medium">{report.role?.map(r => r.name).join(', ') || 'N/A'}</span></div>
             <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('establishment')}</span> <span className="font-medium">{report.establishmentName || 'N/A'}</span></div>
             <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('teacher')}</span> <span className="font-medium">{report.teacherFullName || 'N/A'}</span></div>
             <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('course')}</span> <span className="font-medium">{report.courseTitle}</span></div>

@@ -51,12 +51,8 @@ export interface Report {
     dateIssued?: string | null;
     createdAt?: string;
     updatedAt?: string;
-    createdBy?: {
-        id: number;
-        username: string;
-        email: string;
-        roles: { name: string }[];
-    }
+    email?: string;
+    role?: { id: number, name: string }[];
     [key: string]: any; // Index signature for dynamic sorting
 }
 
