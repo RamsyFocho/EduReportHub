@@ -91,7 +91,7 @@ export default function NewReportPage() {
     const lastName = lastNameParts.join(' ');
 
     const payload = {
-      userEmail: user.email,
+      email: user.email,
       establishment: { name: values.establishmentName },
       teacher: { 
         firstName: firstName,
