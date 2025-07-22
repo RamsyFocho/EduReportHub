@@ -106,27 +106,26 @@ export default function EstablishmentsPage() {
 
   return (
     <AnimatedPage>
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <Card>
+      <div className="space-y-8">
+        <Card>
             <CardHeader>
-              <CardTitle className="font-headline text-2xl">{t('establishments_page.title')}</CardTitle>
-              <CardDescription>{t('establishments_page.description')}</CardDescription>
+                <CardTitle className="font-headline text-2xl">{t('establishments_page.title')}</CardTitle>
+                <CardDescription>{t('establishments_page.description')}</CardDescription>
             </CardHeader>
             <CardContent>
-              {loading ? (
+                {loading ? (
                 <div className="space-y-4">
-                  {Array.from({length: 5}).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
+                    {Array.from({length: 5}).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
                 </div>
-              ) : (
+                ) : (
                 <ul className="space-y-2">
-                  {establishments.map((est) => (
+                    {establishments.map((est) => (
                     <li key={est.id} className="flex items-center justify-between rounded-lg border p-3">
-                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3">
                         <List className="h-5 w-5 text-primary" />
                         <span className="font-medium">{est.name}</span>
-                      </div>
-                      {canManage && (
+                        </div>
+                        {canManage && (
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <Button variant="ghost" size="icon" onClick={() => setEditingEstablishment(est)}>
@@ -134,17 +133,15 @@ export default function EstablishmentsPage() {
                                 </Button>
                             </AlertDialogTrigger>
                         </AlertDialog>
-                      )}
+                        )}
                     </li>
-                  ))}
+                    ))}
                 </ul>
-              )}
+                )}
             </CardContent>
-          </Card>
-        </div>
+        </Card>
         
         {canManage && (
-          <div>
             <Card>
               <CardHeader>
                 <CardTitle className="font-headline text-2xl">{t('create_new')}</CardTitle>
@@ -173,7 +170,6 @@ export default function EstablishmentsPage() {
                 </Form>
               </CardContent>
             </Card>
-          </div>
         )}
       </div>
       
