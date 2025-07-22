@@ -1,4 +1,5 @@
 
+
 import {
   Table,
   TableBody,
@@ -30,8 +31,8 @@ export default function RecentReportsTable({ data }: RecentReportsTableProps) {
       <TableBody>
         {recentReports.map((report) => (
           <TableRow key={report.reportId}>
-            <TableCell>{report.teacher ? `${report.teacher.firstName} ${report.teacher.lastName}` : 'N/A'}</TableCell>
-            <TableCell>{report.establishment?.name || 'N/A'}</TableCell>
+            <TableCell>{report.teacherFullName || 'N/A'}</TableCell>
+            <TableCell>{report.establishmentName || 'N/A'}</TableCell>
             <TableCell>{new Date(report.date).toLocaleDateString()}</TableCell>
             <TableCell><Badge variant={report.sanctionType === "NONE" || !report.sanctionType ? "secondary" : "destructive"}>{report.sanctionType || 'NONE'}</Badge></TableCell>
           </TableRow>
