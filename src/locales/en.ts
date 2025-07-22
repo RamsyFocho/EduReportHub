@@ -59,12 +59,13 @@ export const en = {
   created_at: 'Created at',
   updated_at: 'Last updated',
 
-  landing_page: {
+  landing_page: {    
     nav: {
       features: 'Features',
       how_it_works: 'How it Works',
       testimonials: 'Testimonials',
       faq: 'FAQ',
+      home: "Go to Home"
     },
     hero: {
       title: 'Transform Your Data Into <span class="block text-orange-200">Actionable Insights</span>',

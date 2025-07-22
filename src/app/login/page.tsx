@@ -156,6 +156,9 @@ export default function LoginPage() {
               <p className="text-sm text-muted-foreground">
                 {t('login_page.no_account')}
               </p>
+              <Link href="/" className="text-sm text-muted-foreground underline">
+                {t('landing_page.nav.home')}
+              </Link>
           </CardFooter>
         </Card>
       </motion.div>

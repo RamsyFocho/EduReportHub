@@ -65,6 +65,7 @@ export const fr = {
       how_it_works: 'Comment ça marche',
       testimonials: 'Témoignages',
       faq: 'FAQ',
+      home: "Retour Vers page d'acceuil"
     },
     hero: {
       title: 'Transformez vos données en <span class="block text-orange-200">perspectives actionnables</span>',
