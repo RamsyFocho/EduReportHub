@@ -298,7 +298,7 @@ export default function ReportsPage() {
                 <h3 className="font-semibold text-lg">{t('attendance')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
                     <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('new_report_page.present_students')}</span> <span className="font-medium">{selectedReport.studentPresent ?? 'N/A'}</span></div>
-                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('new_report_page.absent_students')}</span> <span className="font-medium">{selectedReport.absentStudents ?? 'N/A'}</span></div>
+                    <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('new_report_page.absent_students')}</span> <span className="font-medium">{selectedReport.studentNum - selectedReport.studentPresent ?? 'N/A'}</span></div>
                     <div className="flex flex-col"><span className="text-sm font-semibold text-muted-foreground">{t('reports_page.total_students')}</span> <span className="font-medium">{selectedReport.studentNum ?? 'N/A'}</span></div>
                 </div>
 
