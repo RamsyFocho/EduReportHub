@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/shared/ThemeProvider';
 import { TranslationProvider } from '@/context/TranslationContext';
 import './globals.css';
+import AppLoader from '@/components/AppLoader';
 
 const APP_NAME = "EduReport Hub";
 const APP_DESCRIPTION = "A modern Teacher Report System for educational oversight, offering seamless reporting, data analytics, and secure user management for school inspectors.";
@@ -77,7 +78,8 @@ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>) 
+{  
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -98,7 +100,8 @@ export default function RootLayout({
         >
           <TranslationProvider>
             <AuthProvider>
-              {children}
+              <AppLoader>{children}</AppLoader>
+
               <Toaster />
             </AuthProvider>
           </TranslationProvider>
