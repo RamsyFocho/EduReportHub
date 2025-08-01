@@ -101,7 +101,6 @@ export default function RootLayout({
           <TranslationProvider>
             <AuthProvider>
               <AppLoader>{children}</AppLoader>
-
               <Toaster />
             </AuthProvider>
           </TranslationProvider>

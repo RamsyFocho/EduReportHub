@@ -119,7 +119,7 @@ export default function DashboardPage() {
 
   return (
     <AnimatedPage>
-      <div className="p-4 md:p-8 space-y-8">
+      <div className="p-4 md:p-8 space-y-2">
         <h1 className="text-3xl font-bold font-headline">Analytics Dashboard</h1>
 
         {/* Filter controls are placed at the top for easy access. */}
