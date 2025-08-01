@@ -30,7 +30,7 @@ export const fr = {
   uploading: 'Téléversement...',
   submitting: 'Envoi...',
   search: 'Rechercher',
-  clear: 'Effacer',
+  clear: 'Effacer les filtres',
   actions: 'Actions',
   role: 'Rôle',
   select_role: 'Sélectionner un rôle',
@@ -40,6 +40,7 @@ export const fr = {
   male: 'Masculin',
   female: 'Féminin',
   other: 'Autre',
+  optional: 'Facultatif',
   unknown_error: 'Une erreur inconnue est survenue.',
   click_to_upload: 'Cliquez pour téléverser',
   or_drag_and_drop: 'ou glisser-déposer',
@@ -58,6 +59,8 @@ export const fr = {
   timestamps: 'Horodatages',
   created_at: 'Créé le',
   updated_at: 'Dernière mise à jour',
+  previous: 'Précédent',
+  next: 'Suivant',
 
   landing_page: {
     nav: {
@@ -252,7 +255,8 @@ export const fr = {
     my_sanctions: 'Mes sanctions',
     sanctions_issued: '1 avertissement émis',
     analytics_overview: 'Aperçu analytique',
-    reports_by_establishment: 'Rapports par établissement',
+    reports_by_establishment: 'Résumé par Établissement',
+    filtered_reports_by_establishment_desc: "Un résumé des rapports actuellement filtrés par établissement.",
     monthly_report_trends: 'Tendances mensuelles des rapports',
     quick_actions: 'Actions rapides',
     create_new_report: 'Créer un nouveau rapport',
@@ -289,7 +293,7 @@ export const fr = {
   },
   reports_page: {
     title: 'Rapports',
-    description: 'Voir, rechercher et gérer tous les rapports d\'inspection.',
+    description: 'Explorez, filtrez et gérez tous les rapports d\'inspection.',
     create_report: 'Créer un rapport',
     search_by: 'Rechercher par...',
     search_placeholder: 'Rechercher par {{type}}...',
@@ -298,7 +302,8 @@ export const fr = {
     set_none: 'Définir sur Aucun',
     set_warning: 'Définir sur Avertissement',
     set_suspension: 'Définir sur Suspension',
-    no_reports_found: 'Aucun rapport trouvé.',
+    no_reports_found: 'Aucun rapport ne correspond aux filtres actuels.',
+    no_data_for_chart: "Aucune donnée à afficher pour les filtres actuels.",
     fetch_failed_title: 'Échec de la récupération des rapports',
     fetch_failed_desc: 'Impossible de charger les rapports.',
     sanction_update_success: 'Sanction du rapport mise à jour.',
@@ -309,6 +314,18 @@ export const fr = {
     total_students: 'Total des élèves',
     inspector_observation: 'Observation de l\'inspecteur',
     sanction_description: 'Description de la sanction',
+    pagination_summary: 'Affichage de {{start}} à {{end}} sur {{total}} rapports.',
+    apply_sanction_title: 'Appliquer une sanction au rapport #{{id}}',
+    apply_sanction_desc: 'Choisissez un type de sanction et ajoutez une description facultative.',
+    select_sanction_type: 'Sélectionnez un type de sanction',
+    sanction_desc_placeholder: 'Fournissez des détails pour la sanction...',
+    submit_sanction: 'Soumettre la sanction'
+  },
+  sanctions: {
+    NONE: "Aucune",
+    EXPLANATION_REQUEST: "Demande d'explication",
+    WARNING_LETTER: "Lettre de mise en garde",
+    DISMISSAL: "Licenciement"
   },
   new_report_page: {
     title: 'Créer un nouveau rapport',

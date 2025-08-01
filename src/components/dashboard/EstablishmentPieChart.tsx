@@ -4,9 +4,10 @@
 
 import { Pie, PieChart, ResponsiveContainer, Tooltip, Cell } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Report } from '@/types';
 
 interface EstablishmentPieChartProps {
-    data: any[];
+    data: Report[];
 }
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
@@ -21,7 +22,7 @@ export default function EstablishmentPieChart({ data }: EstablishmentPieChartPro
             acc.push({ name: estName, value: 1 });
         }
         return acc;
-    }, []);
+    }, [] as { name: string; value: number }[]);
 
     return (
         <Card>

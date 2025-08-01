@@ -30,7 +30,7 @@ export const en = {
   uploading: 'Uploading...',
   submitting: 'Submitting...',
   search: 'Search',
-  clear: 'Clear',
+  clear: 'Clear Filters',
   actions: 'Actions',
   role: 'Role',
   select_role: 'Select a role',
@@ -40,6 +40,7 @@ export const en = {
   male: 'Male',
   female: 'Female',
   other: 'Other',
+  optional: 'Optional',
   unknown_error: 'An unknown error occurred.',
   click_to_upload: 'Click to upload',
   or_drag_and_drop: 'or drag and drop',
@@ -58,6 +59,8 @@ export const en = {
   timestamps: 'Timestamps',
   created_at: 'Created at',
   updated_at: 'Last updated',
+  previous: 'Previous',
+  next: 'Next',
 
   landing_page: {    
     nav: {
@@ -252,7 +255,8 @@ export const en = {
     my_sanctions: 'My Sanctions',
     sanctions_issued: '1 warning issued',
     analytics_overview: 'Analytics Overview',
-    reports_by_establishment: 'Reports by Establishment',
+    reports_by_establishment: 'Summary by Establishment',
+    filtered_reports_by_establishment_desc: 'A summary of the currently filtered reports by establishment.',
     monthly_report_trends: 'Monthly Report Trends',
     quick_actions: 'Quick Actions',
     create_new_report: 'Create New Report',
@@ -289,7 +293,7 @@ export const en = {
   },
   reports_page: {
     title: 'Reports',
-    description: 'View, search, and manage all inspection reports.',
+    description: 'Explore, filter, and manage all inspection reports.',
     create_report: 'Create Report',
     search_by: 'Search by...',
     search_placeholder: 'Search by {{type}}...',
@@ -298,7 +302,8 @@ export const en = {
     set_none: 'Set to None',
     set_warning: 'Set to Warning',
     set_suspension: 'Set to Suspension',
-    no_reports_found: 'No reports found.',
+    no_reports_found: 'No reports match the current filters.',
+    no_data_for_chart: 'No data to display for the current filters.',
     fetch_failed_title: 'Failed to fetch reports',
     fetch_failed_desc: 'Could not load reports.',
     sanction_update_success: 'Report sanction updated.',
@@ -309,6 +314,18 @@ export const en = {
     total_students: 'Total Students',
     inspector_observation: "Inspector's Observation",
     sanction_description: 'Sanction Description',
+    pagination_summary: 'Showing {{start}} to {{end}} of {{total}} reports.',
+    apply_sanction_title: 'Apply Sanction to Report #{{id}}',
+    apply_sanction_desc: 'Choose a sanction type and add an optional description.',
+    select_sanction_type: 'Select a sanction type',
+    sanction_desc_placeholder: 'Provide details for the sanction...',
+    submit_sanction: 'Submit Sanction'
+  },
+  sanctions: {
+    NONE: "None",
+    EXPLANATION_REQUEST: "Explanation Request",
+    WARNING_LETTER: "Warning Letter",
+    DISMISSAL: "Dismissal"
   },
   new_report_page: {
     title: 'Create New Report',

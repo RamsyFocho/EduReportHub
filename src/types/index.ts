@@ -45,14 +45,16 @@ export interface Report {
     courseTitle: string;
     observation: string;
     sanctionType: "NONE" | "WARNING" | "SUSPENSION" | "COMMENDATION" | null;
-    establishmentName: string;
-    teacherFullName: string;
-    email: string;
-    phoneNumber: string | null;
-    role: { id: number; name: string; }[];
     description: string | null;
     dateIssued: string | null;
     createdAt?: string;
     updatedAt?: string;
-    absentStudents?: number; // Keep for potential use in details
+    createdBy?: {
+        id: number;
+        username: string;
+        email: string;
+    }
 }
+
+// Re-exporting from a dedicated types file for reports
+export type { SortConfig, Filters } from './reports';

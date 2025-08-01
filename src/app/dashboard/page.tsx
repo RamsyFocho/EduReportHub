@@ -24,6 +24,7 @@ export default function DashboardPage() {
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedEstablishment, setSelectedEstablishment] = useState<string>('All');
   const { t } = useTranslation();
 
   // Initial data fetch for establishments and all reports on component mount.
@@ -56,32 +57,38 @@ export default function DashboardPage() {
     fetchInitialData();
   }, []); // Empty dependency array ensures this runs only once on mount.
 
-
   // --- Memoized Calculations for Performance ---
 
+  const filteredReports = useMemo(() => {
+    if (selectedEstablishment === 'All') {
+      return reports;
+    }
+    return reports.filter(report => report.establishmentName === selectedEstablishment);
+  }, [reports, selectedEstablishment]);
+
   // Memoize the total number of reports to avoid recalculating on every render.
-  const totalReports = useMemo(() => reports.length, [reports]);
+  const totalReports = useMemo(() => filteredReports.length, [filteredReports]);
 
   // Memoize the calculation of unique sanctions.
   const totalUniqueSanctions = useMemo(() => {
     const sanctions = new Set(
-      reports
+      filteredReports
         .map((report: any) => report.sanctionType)
         .filter(sanction => sanction && sanction !== 'NONE') // Filter out null/NONE values
     );
     return sanctions.size;
-  }, [reports]);
+  }, [filteredReports]);
 
   const reportsThisMonth = useMemo(() => {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
     
-    return reports.filter(report => {
+    return filteredReports.filter(report => {
         const reportDate = new Date(report.date);
         return reportDate.getMonth() === currentMonth && reportDate.getFullYear() === currentYear;
     }).length;
-  }, [reports]);
+  }, [filteredReports]);
 
 
   // --- Render Logic ---
@@ -125,6 +132,8 @@ export default function DashboardPage() {
         {/* Filter controls are placed at the top for easy access. */}
         <FilterControls
           establishments={establishments}
+          selectedEstablishment={selectedEstablishment}
+          onEstablishmentChange={setSelectedEstablishment}
         />
 
         {/* A grid for displaying high-level Key Performance Indicators (KPIs). */}
@@ -139,18 +148,18 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* The line chart takes up more horizontal space on larger screens. */}
           <div className="lg:col-span-2">
-            <ReportsLineChart data={reports} />
+            <ReportsLineChart data={filteredReports} />
           </div>
           {/* The pie chart for establishment breakdown. */}
           <div>
-            <EstablishmentPieChart data={reports} />
+            <EstablishmentPieChart data={filteredReports} />
           </div>
         </div>
 
         {/* A section for displaying a table of the most recent reports. */}
         <div>
           <h2 className="text-2xl font-semibold mb-4 font-headline">Recent Reports</h2>
-          <RecentReportsTable data={reports} />
+          <RecentReportsTable data={filteredReports} />
         </div>
       </div>
     </AnimatedPage>
