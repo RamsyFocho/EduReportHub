@@ -52,10 +52,11 @@ export default function TeachersPage() {
     resolver: zodResolver(teacherSchema),
   });
 
-  const fetchTeachers = useCallback(async () => {
+  const fetchTeachers = useCallback(async (query = '') => {
     try {
       setLoading(true);
-      const data = await api.get('/api/teachers');
+      const endpoint = query ? `/api/teachers/search?q=${query}` : '/api/teachers';
+      const data = await api.get(endpoint);
       setTeachers(data);
     } catch (error: any) {
       toast({ variant: 'destructive', title: t('teachers_page.fetch_failed_title'), description: error.message || t('teachers_page.fetch_failed_desc') });
@@ -103,12 +104,29 @@ export default function TeachersPage() {
     setEditingTeacher(null);
   }
 
+  const filteredTeachers = useMemo(() => {
+    if (!searchTerm) return teachers;
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    return teachers.filter(teacher => 
+      teacher.firstName.toLowerCase().includes(lowerCaseSearchTerm) ||
+      teacher.lastName.toLowerCase().includes(lowerCaseSearchTerm) ||
+      teacher.email?.toLowerCase().includes(lowerCaseSearchTerm) ||
+      teacher.teacherId?.toLowerCase().includes(lowerCaseSearchTerm)
+    );
+  }, [teachers, searchTerm]);
+
   return (
     <AnimatedPage>
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="font-headline text-2xl">{t('teachers_page.title')}</CardTitle>
           <CardDescription>{t('teachers_page.description')}</CardDescription>
+          <div className="flex items-center gap-2 pt-4">
+            <Input
+              placeholder={t('teachers_page.search_placeholder')}
+              onChange={(e) => fetchTeachers(e.target.value)}
+            />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">

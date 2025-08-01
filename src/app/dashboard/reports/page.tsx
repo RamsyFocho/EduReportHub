@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { api } from "@/lib/api";
 import { Report } from "@/types";
 import { useToast } from "@/hooks/use-toast";
@@ -60,16 +60,49 @@ export default function ReportsPage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchType, setSearchType] = useState<SearchType>("teacher");
+  const filteredReports = useMemo(() => {
+    let filtered = reports;
+
+    if (filterDeleted) {
+      filtered = filtered.filter(report => report.deleted);
+    } else {
+      filtered = filtered.filter(report => !report.deleted);
+    }
+
+    if (searchTerm.trim()) {
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      filtered = filtered.filter(report => {
+        switch (searchType) {
+          case "teacher":
+            return report.teacherFullName?.toLowerCase().includes(lowerCaseSearchTerm);
+          case "establishment":
+            return report.establishmentName?.toLowerCase().includes(lowerCaseSearchTerm);
+          case "class":
+            return report.className?.toLowerCase().includes(lowerCaseSearchTerm);
+          case "course":
+            return report.courseTitle?.toLowerCase().includes(lowerCaseSearchTerm);
+          case "description":
+            return report.observation?.toLowerCase().includes(lowerCaseSearchTerm) || report.description?.toLowerCase().includes(lowerCaseSearchTerm);
+          default:
+            return true;
+        }
+      });
+    }
+    return filtered;
+  }, [reports, searchTerm, searchType, filterDeleted]);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteReason, setDeleteReason] = useState("");
+  const [permanentDeleteDialogOpen, setPermanentDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const { t } = useTranslation();
   const canUpdateSanction = user?.roles?.includes("ROLE_ADMIN") || user?.roles?.includes("ROLE_DIRECTOR");
 
-  const fetchReports = useCallback(async (endpoint = "/api/reports") => {
+  const fetchReports = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await api.get(endpoint);
+      const data = await api.get("/api/reports");
       console.log("Data from backend:", data);
 
       if (Array.isArray(data)) {
@@ -95,21 +128,6 @@ export default function ReportsPage() {
   useEffect(() => {
     fetchReports();
   }, [fetchReports]);
-
-  const handleSearch = () => {
-    if (!searchTerm.trim()) {
-        fetchReports();
-        return;
-    }
-    const endpoints: Record<SearchType, string> = {
-        teacher: `/api/reports/search/teacher?name=${searchTerm}`,
-        establishment: `/api/reports/search/establishment?name=${searchTerm}`,
-        class: `/api/reports/search/class?name=${searchTerm}`,
-        course: `/api/reports/search/course?title=${searchTerm}`,
-        description: `/api/reports/search/description?keyword=${searchTerm}`
-    };
-    fetchReports(endpoints[searchType]);
-  };
   
   const handleClearSearch = () => {
     setSearchTerm("");
@@ -132,6 +150,50 @@ export default function ReportsPage() {
         variant: "destructive",
         title: t('update_failed'),
         description: error.message || t('reports_page.sanction_update_failed'),
+      });
+    } finally {
+        setIsUpdating(false);
+    }
+  };
+
+  const handleSoftDelete = async () => {
+    if (!selectedReport) return;
+
+    setIsUpdating(true);
+    try {
+      await api.put(`/api/reports/${selectedReport.reportId}/delete`, { reason: deleteReason });
+      toast({ title: t('success'), description: t('reports_page.delete_success') });
+      setDeleteDialogOpen(false);
+      if (searchTerm.trim()) {
+          handleSearch();
+      } else {
+          fetchReports();
+      }
+    } catch (error: any) {
+       toast({
+        variant: "destructive",
+        title: t('update_failed'),
+        description: error.message || t('reports_page.delete_failed'),
+      });
+    } finally {
+        setIsUpdating(false);
+    }
+  };
+
+  const handlePermanentDelete = async () => {
+    if (!selectedReport) return;
+
+    setIsUpdating(true);
+    try {
+      await api.delete(`/api/reports/${selectedReport.reportId}`);
+      toast({ title: t('success'), description: t('reports_page.permanent_delete_success') });
+      setPermanentDeleteDialogOpen(false);
+      fetchReports('/api/reports/deleted');
+    } catch (error: any) {
+       toast({
+        variant: "destructive",
+        title: t('update_failed'),
+        description: error.message || t('reports_page.permanent_delete_failed'),
       });
     } finally {
         setIsUpdating(false);
@@ -167,6 +229,9 @@ export default function ReportsPage() {
                     {t('reports_page.create_report')}
                 </Button>
             </Link>
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => fetchReports('/api/reports/deleted')}>
+                {t('reports_page.view_deleted')}
+            </Button>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-2 mt-4">
             <Select value={searchType} onValueChange={(value) => setSearchType(value as SearchType)}>
@@ -184,7 +249,7 @@ export default function ReportsPage() {
             <div className="relative flex-grow w-full">
               <Input 
                   type="search" 
-                  placeholder={t('reports_page.search_placeholder', { type: searchType })}
+                  placeholder={t('reports_page.search_placeholder_' + searchType)}
                   className="w-full"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -225,8 +290,8 @@ export default function ReportsPage() {
                     <TableCell className="text-right"><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
                   </TableRow>
                 ))
-              ) : reports.length > 0 ? (
-                reports.map((report) => (
+              ) : filteredReports.length > 0 ? (
+                filteredReports.map((report) => (
                   <TableRow key={report.reportId}>
                     <TableCell>{report.teacherFullName || 'N/A'}</TableCell>
                     <TableCell className="hidden md:table-cell">{report.establishmentName || 'N/A'}</TableCell>
@@ -243,7 +308,12 @@ export default function ReportsPage() {
                           <Eye className="mr-0 sm:mr-2 h-4 w-4" />
                           <span className="hidden sm:inline">{t('reports_page.view_details')}</span>
                         </Button>
-                        {canUpdateSanction && (
+                        {canUpdateSanction && report.deleted && (
+                            <Button variant="destructive" size="sm" onClick={() => {setSelectedReport(report); setPermanentDeleteDialogOpen(true);}}>
+                                {t('reports_page.permanent_delete')}
+                            </Button>
+                        )}
+                        {canUpdateSanction && !report.deleted && (
                             <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="h-8 w-8 p-0" disabled={isUpdating}>
@@ -256,6 +326,7 @@ export default function ReportsPage() {
                                 <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.reportId, 'NONE')}>{t('reports_page.set_none')}</DropdownMenuItem>
                                 <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.reportId, 'WARNING')}>{t('reports_page.set_warning')}</DropdownMenuItem>
                                 <DropdownMenuItem disabled={isUpdating} onClick={() => handleSanctionUpdate(report.reportId, 'SUSPENSION')}>{t('reports_page.set_suspension')}</DropdownMenuItem>
+                                <DropdownMenuItem disabled={isUpdating} onClick={() => {setSelectedReport(report); setDeleteDialogOpen(true);}}>{t('reports_page.delete_report')}</DropdownMenuItem>
                             </DropdownMenuContent>
                             </DropdownMenu>
                         )}
@@ -338,6 +409,32 @@ export default function ReportsPage() {
               </div>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('reports_page.delete_report_title')}</DialogTitle>
+            <DialogDescription>{t('reports_page.delete_report_desc')}</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              placeholder={t('reports_page.delete_reason_placeholder')}
+              onChange={(e) => setDeleteReason(e.target.value)}
+            />
+          </div>
+          <Button variant="destructive" onClick={handleSoftDelete}>{t('reports_page.delete_report_confirm')}</Button>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={permanentDeleteDialogOpen} onOpenChange={setPermanentDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('reports_page.permanent_delete_title')}</DialogTitle>
+            <DialogDescription>{t('reports_page.permanent_delete_desc')}</DialogDescription>
+          </DialogHeader>
+          <Button variant="destructive" onClick={handlePermanentDelete}>{t('reports_page.permanent_delete_confirm')}</Button>
         </DialogContent>
       </Dialog>
     </AnimatedPage>

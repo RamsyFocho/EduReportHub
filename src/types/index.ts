@@ -17,6 +17,8 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   fetchUser: () => Promise<boolean>;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (token: string, newPassword: string) => Promise<void>;
 }
 
 export interface Establishment {
@@ -55,4 +57,5 @@ export interface Report {
     createdAt?: string;
     updatedAt?: string;
     absentStudents?: number; // Keep for potential use in details
+    deleted?: boolean;
 }

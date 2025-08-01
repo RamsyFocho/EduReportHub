@@ -54,6 +54,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await fetchUser();
   };
 
+  const forgotPassword = async (email: string): Promise<void> => {
+    await api.post('/api/auth/forgot-password', { email });
+  };
+
+  const resetPassword = async (token: string, newPassword: string): Promise<void> => {
+    await api.post('/api/auth/reset-password', { token, newPassword });
+  };
+
   const logout = () => {
     setUser(null);
     setAuthState(null);
@@ -68,7 +76,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     logout,
     loading,
-    fetchUser
+    fetchUser,
+    forgotPassword,
+    resetPassword
   };
 
   return (
