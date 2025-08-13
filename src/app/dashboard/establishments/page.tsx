@@ -104,13 +104,13 @@ export default function EstablishmentsPage() {
     }
   }, [editingEstablishment, editForm]);
 
-  const filteredEstablishments = useMemo(() => {
-    if (!searchTerm) return establishments;
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
-    return establishments.filter(est => 
-      est.name.toLowerCase().includes(lowerCaseSearchTerm)
-    );
-  }, [establishments, searchTerm]);
+  // const filteredEstablishments = useMemo(() => {
+  //   if (!searchTerm) return establishments;
+  //   const lowerCaseSearchTerm = searchTerm.toLowerCase();
+  //   return establishments.filter(est => 
+  //     est.name.toLowerCase().includes(lowerCaseSearchTerm)
+  //   );
+  // }, [establishments, searchTerm]);
 
 
   return (
