@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -43,6 +43,7 @@ export default function TeachersPage() {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
   const { user } = useAuth();
   const { t } = useTranslation();
@@ -52,7 +53,7 @@ export default function TeachersPage() {
     resolver: zodResolver(teacherSchema),
   });
 
-  const fetchTeachers = useCallback(async (query = '') => {
+        const fetchTeachers = async (query = '') => {
     try {
       setLoading(true);
       const endpoint = query ? `/api/teachers/search?q=${query}` : '/api/teachers';
@@ -67,7 +68,11 @@ export default function TeachersPage() {
 
   useEffect(() => {
     fetchTeachers();
-  }, [fetchTeachers]);
+  }, []);
+
+  
+
+  
 
   async function handleEditSubmit(values: z.infer<typeof teacherSchema>) {
     if (!editingTeacher) return;
@@ -115,6 +120,8 @@ export default function TeachersPage() {
     );
   }, [teachers, searchTerm]);
 
+  
+
   return (
     <AnimatedPage>
       <Card className="w-full">
@@ -124,7 +131,7 @@ export default function TeachersPage() {
           <div className="flex items-center gap-2 pt-4">
             <Input
               placeholder={t('teachers_page.search_placeholder')}
-              onChange={(e) => fetchTeachers(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </CardHeader>
@@ -156,7 +163,7 @@ export default function TeachersPage() {
                     </TableRow>
                   ))
                 ) : (
-                  teachers.map((teacher) => (
+                  filteredTeachers.map((teacher) => (
                     <TableRow key={teacher.id}>
                       <TableCell className="hidden sm:table-cell">{teacher.teacherId || 'N/A'}</TableCell>
                       <TableCell>{teacher.firstName}</TableCell>

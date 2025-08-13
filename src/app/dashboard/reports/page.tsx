@@ -186,7 +186,7 @@ export default function ReportsPage() {
     setSearchTerm("");
   };
 
-  const handleSanctionUpdate = async (reportId: number, sanctionType: "NONE" | "WARNING" | "SUSPENSION" | "COMMENDATION") => {
+  const handleSanctionUpdate = async (reportId: number, sanctionType: "NONE" | "WARNING" | "SUSPENSION" | "COMMENDATION" | "OTHER" | "OBSERVATION LETTER" | "REQUEST EXPLANATION") => {
     setIsUpdating(true);
     try {
       await api.put(`/api/reports/sanction/${reportId}`, { id: reportId, sanctionType });
