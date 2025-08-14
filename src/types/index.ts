@@ -58,4 +58,5 @@ export interface Report {
     updatedAt?: string;
     absentStudents?: number; // Keep for potential use in details
     deleted?: boolean;
+    deletedBy?: [];
 }

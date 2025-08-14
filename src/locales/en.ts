@@ -341,7 +341,7 @@ export const en = {
     fetch_failed_desc: "Could not load reports.",
     sanction_update_success: "Report sanction updated.",
     sanction_update_failed: "Could not update sanction.",
-    details_title: "Report Details (ID: {{id}})",
+    details_title: "Report Details",
     details_description:
       "Full details for the inspection conducted on {{date}}.",
     sanction_date: "Sanction Date",

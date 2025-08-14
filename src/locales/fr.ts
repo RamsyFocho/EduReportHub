@@ -306,7 +306,7 @@ export const fr = {
     fetch_failed_desc: 'Impossible de charger les rapports.',
     sanction_update_success: 'Sanction du rapport mise à jour.',
     sanction_update_failed: 'Impossible de mettre à jour la sanction.',
-    details_title: 'Détails du rapport (ID: {{id}})',
+    details_title: 'Détails du rapport',
     details_description: 'Détails complets de l\'inspection menée le {{date}}.',
     sanction_date: 'Date de la sanction',
     total_students: 'Total des élèves',
