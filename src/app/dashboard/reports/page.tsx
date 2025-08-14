@@ -91,7 +91,7 @@ export default function ReportsPage() {
   // Search and Filter State
   const [searchTerm, setSearchTerm] = useState("");
   const [searchType, setSearchType] = useState<SearchType>("teacher");
-  const [viewMode, setViewMode] = useState<'active' | 'deleted'>('active');
+  const [viewMode, setViewMode] = useState<'active' | 'sanctioned' | 'deleted'>('active');
 
   // Sorting State
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection } | null>({ key: 'date', direction: 'descending' });
@@ -111,6 +111,7 @@ export default function ReportsPage() {
   const fetchReports = useCallback(async () => {
     setLoading(true);
     const endpoint = viewMode === 'deleted' ? "/api/reports/deleted" : "/api/reports";
+    // For sanctioned view, we'll filter client-side to maintain API compatibility
     try {
       const data = await api.get(endpoint);
       const reportsData = Array.isArray(data) ? data : (data && Array.isArray(data.content)) ? data.content : [];
@@ -134,7 +135,14 @@ export default function ReportsPage() {
   const sortedAndFilteredReports = useMemo(() => {
     let filtered = [...reports];
 
-    // Filtering logic
+    // Filter by view mode first
+    if (viewMode === 'active') {
+      filtered = filtered.filter(report => report.sanctionType === 'NONE');
+    } else if (viewMode === 'sanctioned') {
+      filtered = filtered.filter(report => report.sanctionType !== 'NONE' && report.sanctionType !== null);
+    }
+
+    // Then apply search filtering
     if (searchTerm.trim()) {
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
       filtered = filtered.filter(report => {
@@ -264,7 +272,11 @@ export default function ReportsPage() {
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
             <div>
               <CardTitle className="font-headline text-2xl">{t('reports_page.title')}</CardTitle>
-              <CardDescription>{viewMode === 'active' ? t('reports_page.description') : t('reports_page.deleted_description')}</CardDescription>
+              <CardDescription>
+                {viewMode === 'active' && t('reports_page.description')}
+                {viewMode === 'sanctioned' && t('reports_page.sanctioned_description')}
+                {viewMode === 'deleted' && t('reports_page.deleted_description')}
+              </CardDescription>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <Link href="/dashboard/reports/new" passHref>
@@ -273,10 +285,28 @@ export default function ReportsPage() {
                         {t('reports_page.create_report')}
                     </Button>
                 </Link>
-                <Button variant="outline" className="w-full" onClick={() => setViewMode(viewMode === 'active' ? 'deleted' : 'active')}>
-                  {viewMode === 'active' ? <Archive className="mr-2 h-4 w-4" /> : <ArchiveRestore className="mr-2 h-4 w-4" />}
-                  {viewMode === 'active' ? t('reports_page.view_deleted') : t('reports_page.view_active')}
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    variant={viewMode === 'active' ? 'default' : 'outline'} 
+                    className="w-full" 
+                    onClick={() => setViewMode('active')}>
+                    {t('reports_page.view_active')}
+                  </Button>
+                  <Button 
+                    variant={viewMode === 'sanctioned' ? 'default' : 'outline'} 
+                    className="w-full" 
+                    onClick={() => setViewMode('sanctioned')}>
+                    <Badge variant="destructive" className="mr-2">!</Badge>
+                    {t('reports_page.view_sanctioned')}
+                  </Button>
+                  <Button 
+                    variant={viewMode === 'deleted' ? 'default' : 'outline'} 
+                    className="w-full" 
+                    onClick={() => setViewMode('deleted')}>
+                    <Archive className="mr-2 h-4 w-4" />
+                    {t('reports_page.view_deleted')}
+                  </Button>
+                </div>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-2 mt-4">
