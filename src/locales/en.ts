@@ -343,7 +343,7 @@ export const en = {
     sanction_update_failed: "Could not update sanction.",
     details_title: "Report Details",
     details_description:
-      "Full details for the inspection conducted on {{date}}.",
+      "Full details for the inspection conducted on ",
     sanction_date: "Sanction Date",
     total_students: "Total Students",
     inspector_observation: "Inspector's Observation",
@@ -356,6 +356,9 @@ export const en = {
     delete_report_confirm: "Yes, delete report",
     delete_success: "Report deleted successfully.",
     delete_failed: "Failed to delete report.",
+    deletion_details:"Deletion Details",
+    deleted_at: "Deleted At",
+    deleted_by: "Deleted By",
     view_deleted: "View Deleted Reports",
     permanent_delete: "Permanent Delete",
     permanent_delete_title: "Are you sure?",

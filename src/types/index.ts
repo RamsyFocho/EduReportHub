@@ -37,6 +37,8 @@ export interface Teacher {
 }
 
 export interface Report {
+    deletedAt: any;
+    deletionReason: any;
     reportId: number;
     className: string;
     studentNum: number;

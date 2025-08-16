@@ -681,9 +681,9 @@ export default function ReportsPage() {
                   }`}
                 </DialogTitle>
                 <DialogDescription>
-                  {t("reports_page.details_description", {
-                    date: new Date(selectedReport.date).toLocaleDateString(),
-                  })}
+                  {`${t("reports_page.details_description")} Date: ${new Date(
+                    selectedReport.date
+                  ).toLocaleDateString()}`}
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-6 py-4 max-h-[70vh] overflow-y-auto pr-4">
@@ -694,10 +694,10 @@ export default function ReportsPage() {
                       <h3 className="font-semibold text-lg mb-2">
                         {t("reports_page.deletion_details", "Deletion Details")}
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-sm p-4 bg-muted/50 rounded-lg border">
+                      <div className=" grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-sm p-4 bg-muted/50 rounded-lg border">
                         <div>
                           <span className="font-semibold text-muted-foreground">
-                            {t("reports_page.deleted_at", "Deletion Date")}:{" "}
+                            {t("reports_page.deleted_at" || "Deletion Date")}:{" "}
                           </span>
                           {selectedReport.deletedAt
                             ? new Date(
@@ -705,26 +705,22 @@ export default function ReportsPage() {
                               ).toLocaleString()
                             : "N/A"}
                         </div>
-                        {selectedReport.deletionReason && (
-                          <div className="md:col-span-2 mt-2">
-                            <h4 className="font-semibold text-muted-foreground mb-1">
-                              {t("reports_page.deletion_reason", "Reason")}
-                            </h4>
-                            <p className="text-sm text-foreground whitespace-pre-wrap">
-                              {selectedReport.deletionReason}
-                            </p>
-                          </div>
-                        )}
-                        {selectedReport.deletedBy && (
-                          <div className="md:col-span-2 mt-2">
-                            <h4 className="font-semibold text-muted-foreground mb-1">
-                              {t("reports_page.deletion_reason", "Reason")}
-                            </h4>
-                            <p className="text-sm text-foreground whitespace-pre-wrap">
-                              {selectedReport.deletedBy}
-                            </p>
-                          </div>
-                        )}
+                        <div>
+                          <span className="font-semibold text-muted-foreground">
+                            {t("reports_page.deleted_by" || "Deletion By")}:{" "}
+                          </span>
+                          {selectedReport.deletedBy || "N/A"}
+                        </div>
+                        <div>
+                          <span className="font-semibold text-muted-foreground">
+                            {t(
+                              "reports_page.deletion_reason" ||
+                                "Deletion Reason"
+                            )}
+                            :{" "}
+                          </span>
+                          {selectedReport.deletionReason || "N/A"}
+                        </div>
                       </div>
                     </div>
                     <Separator />
@@ -738,7 +734,8 @@ export default function ReportsPage() {
                       {t("inspector")}
                     </span>{" "}
                     <span className="font-medium">
-                      {selectedReport.email || "N/A"}
+                      {selectedReport.email || "N/A"} <br />
+                      {selectedReport.role[0].name || "N/A"}
                     </span>
                   </div>
                   <div className="flex flex-col">
