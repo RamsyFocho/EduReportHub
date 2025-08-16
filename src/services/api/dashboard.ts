@@ -1,33 +1,36 @@
-
 import { api } from '@/lib/api';
+import { Report, Establishment } from '@/types';
 
-/**
- * Mocks fetching reports by establishment for chart data.
- * In a real application, this would hit a specific analytics endpoint.
- */
-export const getReportsByEstablishment = async () => {
-  // This is mock data until a real backend endpoint is available.
-  return Promise.resolve([
-    { establishment: "Springfield High", reports: 186 },
-    { establishment: "Shelbyville Elementary", reports: 305 },
-    { establishment: "Capital City Middle", reports: 237 },
-    { establishment: "North Haverbrook High", reports: 73 },
-    { establishment: "Ogdenville Prep", reports: 209 },
+export const getDashboardData = async (page = 1, limit = 10) => {
+  const [reportsResponse, establishments] = await Promise.all([
+    api.get('/api/reports', { params: { page, limit } }),
+    api.get('/api/establishments'),
   ]);
-};
 
-/**
- * Mocks fetching monthly report trends for chart data.
- * In a real application, this would hit a specific analytics endpoint.
- */
-export const getMonthlyReportTrends = async () => {
-  // This is mock data until a real backend endpoint is available.
-  return Promise.resolve([
-    { month: "January", reports: 186 },
-    { month: "February", reports: 305 },
-    { month: "March", reports: 237 },
-    { month: "April", reports: 73 },
-    { month: "May", reports: 209 },
-    { month: "June", reports: 214 },
-  ]);
+  const reports = Array.isArray(reportsResponse) ? reportsResponse : reportsResponse.content || [];
+  const totalReports = reportsResponse.totalElements || reports.length;
+
+  const totalUniqueSanctions = new Set(
+    reports
+      .map((report: any) => report.sanctionType)
+      .filter((sanction: any) => sanction && sanction !== 'NONE')
+  ).size;
+
+  const reportsThisMonth = reports.filter((report: Report) => {
+    const reportDate = new Date(report.date);
+    const currentDate = new Date();
+    return (
+      reportDate.getMonth() === currentDate.getMonth() &&
+      reportDate.getFullYear() === currentDate.getFullYear()
+    );
+  }).length;
+
+  return {
+    reports,
+    establishments,
+    totalReports,
+    totalUniqueSanctions,
+    reportsThisMonth,
+    totalPages: reportsResponse.totalPages || 1,
+  };
 };

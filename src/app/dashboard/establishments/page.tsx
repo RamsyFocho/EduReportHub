@@ -52,10 +52,11 @@ export default function EstablishmentsPage() {
     resolver: zodResolver(establishmentSchema),
   });
 
-  const fetchEstablishments = useCallback(async () => {
+  const fetchEstablishments = useCallback(async (query = '') => {
     try {
       setLoading(true);
-      const data = await api.get('/api/establishments');
+      const endpoint = query ? `/api/establishments/search?q=${query}` : '/api/establishments';
+      const data = await api.get(endpoint);
       setEstablishments(data);
     } catch (error) {
       toast({ variant: 'destructive', title: t('establishments_page.fetch_failed') });
@@ -103,6 +104,14 @@ export default function EstablishmentsPage() {
     }
   }, [editingEstablishment, editForm]);
 
+  // const filteredEstablishments = useMemo(() => {
+  //   if (!searchTerm) return establishments;
+  //   const lowerCaseSearchTerm = searchTerm.toLowerCase();
+  //   return establishments.filter(est => 
+  //     est.name.toLowerCase().includes(lowerCaseSearchTerm)
+  //   );
+  // }, [establishments, searchTerm]);
+
 
   return (
     <AnimatedPage>
@@ -111,6 +120,12 @@ export default function EstablishmentsPage() {
             <CardHeader>
                 <CardTitle className="font-headline text-2xl">{t('establishments_page.title')}</CardTitle>
                 <CardDescription>{t('establishments_page.description')}</CardDescription>
+                <div className="flex items-center gap-2 pt-4">
+                  <Input
+                    placeholder={t('establishments_page.search_placeholder')}
+                    onChange={(e) => fetchEstablishments(e.target.value)}
+                  />
+                </div>
             </CardHeader>
             <CardContent>
                 {loading ? (

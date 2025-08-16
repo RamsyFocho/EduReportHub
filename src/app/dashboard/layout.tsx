@@ -43,12 +43,14 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen border-2 w-full">
             <DashboardSidebar />
             <SidebarInset>
                 <DashboardHeader />
-                <main className="flex-1 p-4 sm:p-6 overflow-auto">
-                    {children}
+                <main className="flex-1 overflow-auto">
+                    <div className="grid gap-4 p-4 sm:p-6">
+                        {children}
+                    </div>
                 </main>
             </SidebarInset>
         </div>

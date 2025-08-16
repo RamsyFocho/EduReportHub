@@ -126,7 +126,7 @@ export default function DashboardPage() {
 
   return (
     <AnimatedPage>
-      <div className="p-4 md:p-8 space-y-2">
+      <section className="grid gap-6">
         <h1 className="text-3xl font-bold font-headline">Analytics Dashboard</h1>
 
         {/* Filter controls are placed at the top for easy access. */}
@@ -158,10 +158,15 @@ export default function DashboardPage() {
 
         {/* A section for displaying a table of the most recent reports. */}
         <div>
+<<<<<<< HEAD
           <h2 className="text-2xl font-semibold mb-4 font-headline">Recent Reports</h2>
           <RecentReportsTable data={filteredReports} />
+=======
+          <h2 className="text-2xl font-semibold font-headline mb-4">Recent Reports</h2>
+          <RecentReportsTable data={reports} />
+>>>>>>> test2
         </div>
-      </div>
+      </section>
     </AnimatedPage>
   );
 }
